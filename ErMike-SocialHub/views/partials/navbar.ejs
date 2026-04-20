@@ -1,0 +1,257 @@
+
+  <!--
+    ── navbar.ejs ──────────────────────────────────────────────
+    Barra di navigazione inclusa in tutte le pagine protette.
+    Variabile richiesta: user  → { id, username }
+
+    La RICERCA usa un <input> con dropdown Ajax:
+      1. L'utente digita almeno 1 carattere
+      2. Dopo 300ms (debounce) viene chiamata GET /search?q=...
+      3. Il server risponde con un array JSON di utenti
+      4. I risultati appaiono in un div assoluto sotto l'input
+      5. Cliccando su un risultato si va su /profile?u=username
+         (quando implementerai la pagina profilo pubblica)
+
+    ⚙️  Impostazioni: disabilitato, implementazione futura.
+-->
+<nav class="navbar">
+  <a href="/home" class="navbar-brand">📸 ErMike-SocialHub</a>
+
+  <div class="navbar-links">
+
+    <!-- ── RICERCA UTENTI (funzionante) ── -->
+    <!--
+      Il wrapper .search-wrap ha position:relative così il dropdown
+      .search-results si posiziona esattamente sotto l'input.
+    -->
+    <div class="search-wrap">
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="🔍 Cerca utente..."
+        autocomplete="off"
+      >
+      <!-- Dropdown risultati, nascosto di default -->
+      <div id="searchResults" class="search-results" style="display:none;"></div>
+    </div>
+
+    <!-- Home -->
+    <a href="/home" class="nav-link">🏠 Home</a>
+
+    <!-- Chat globale (bordo verde) -->
+    <a href="/chat" class="nav-link nav-green">💬 Chat</a>
+
+    <!-- Profilo (bordo giallo) -->
+    <a href="/profile" class="nav-link nav-yellow">👤 Profilo</a>
+
+    <!-- Impostazioni — disabilitato -->
+    <span class="nav-link nav-disabled" title="Funzione non ancora disponibile">
+      ⚙️ Impostazioni
+    </span>
+
+    <!-- Username + logout -->
+    <span class="nav-user">👋 <%= user.username %></span>
+    <a href="/logout" class="nav-link nav-red">Esci</a>
+  </div>
+</nav>
+
+<!-- ── Stili navbar (in <style> qui perché è un partial, non ha <head>) ── -->
+<style>
+.navbar {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         0 1.2rem;
+  height:          54px;
+  background:      #111;
+  border-bottom:   2px solid #1a1a1a;
+  position:        sticky;
+  top: 0;
+  z-index: 100;
+  gap: 0.8rem;
+}
+
+.navbar-brand {
+  font-weight: 800;
+  font-size:   1.05rem;
+  color:       var(--yellow);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.navbar-brand:hover { color: var(--yellow); text-decoration: none; }
+
+.navbar-links {
+  display:     flex;
+  align-items: center;
+  gap:         0.3rem;
+  flex-wrap:   wrap;
+}
+
+/* ── Input ricerca ── */
+.search-wrap   { position: relative; }
+.search-input  {
+  width:         170px;
+  background:    #1e1e1e;
+  border:        1px solid #333;
+  border-radius: 20px;
+  color:         var(--text);
+  padding:       0.3rem 0.9rem;
+  font-size:     0.82rem;
+  outline:       none;
+  transition:    border-color 0.2s, width 0.2s;
+}
+.search-input:focus {
+  border-color: var(--blue);
+  width:        220px;
+}
+
+/* ── Dropdown risultati ricerca ── */
+.search-results {
+  position:      absolute;
+  top:           calc(100% + 4px);
+  left:          0;
+  right:         0;
+  background:    #1a1a1a;
+  border:        1px solid #333;
+  border-radius: 8px;
+  overflow:      hidden;
+  z-index:       200;
+  box-shadow:    0 6px 20px rgba(0,0,0,0.6);
+}
+.search-item {
+  display:     flex;
+  align-items: center;
+  gap:         0.6rem;
+  padding:     0.5rem 0.8rem;
+  cursor:      pointer;
+  transition:  background 0.12s;
+  text-decoration: none;
+  color:       var(--text);
+}
+.search-item:hover       { background: #252525; text-decoration: none; }
+.search-item-avatar {
+  width:           32px; height: 32px;
+  border-radius:   50%;
+  background:      var(--blue);
+  color:           #fff;
+  font-size:       0.85rem;
+  font-weight:     700;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  flex-shrink:     0;
+  overflow:        hidden;
+}
+.search-item-avatar img { width:100%; height:100%; object-fit:cover; }
+.search-item-username   { font-weight: 700; font-size: 0.88rem; color: var(--yellow); }
+.search-item-name       { font-size: 0.75rem; color: var(--muted); }
+.search-no-results      { padding: 0.6rem 0.9rem; color: var(--muted); font-size: 0.85rem; }
+
+/* ── Link navbar ── */
+.nav-link {
+  padding:       0.28rem 0.65rem;
+  border-radius: 6px;
+  color:         var(--text);
+  font-size:     0.85rem;
+  cursor:        pointer;
+  transition:    background 0.15s;
+  border:        1px solid transparent;
+  text-decoration: none;
+  white-space:   nowrap;
+}
+a.nav-link:hover { background: #1e1e1e; text-decoration: none; }
+
+.nav-green  { border-color: var(--green);  color: var(--green);  }
+.nav-yellow { border-color: var(--yellow); color: var(--yellow); }
+.nav-red    { border-color: var(--red);    color: var(--red);    }
+.nav-green:hover  { background: var(--green);  color: #000; }
+.nav-yellow:hover { background: var(--yellow); color: #000; }
+.nav-red:hover    { background: var(--red);    color: #fff; }
+
+.nav-disabled {
+  color:        #444;
+  cursor:       not-allowed;
+  border-color: #2a2a2a;
+}
+.nav-disabled:hover { background: transparent !important; }
+
+.nav-user {
+  font-size:   0.82rem;
+  color:       var(--yellow);
+  margin-left: 0.4rem;
+  white-space: nowrap;
+}
+</style>
+
+<!-- ── JavaScript ricerca con debounce ── -->
+<script>
+(function() {
+  const input   = document.getElementById('searchInput');
+  const results = document.getElementById('searchResults');
+  let   timer   = null;   // handle del setTimeout per il debounce
+
+  // Helper: costruisce l'HTML di un singolo risultato
+  function buildItem(u) {
+    // Mostra immagine avatar se disponibile, altrimenti iniziale username
+    const avatarHtml = u.avatar
+      ? `<img src="${u.avatar}" alt="">`
+      : u.username[0].toUpperCase();
+
+    return `
+      <a href="/profile?u=${encodeURIComponent(u.username)}" class="search-item">
+        <div class="search-item-avatar">${avatarHtml}</div>
+        <div>
+          <div class="search-item-username">@${u.username}</div>
+          ${u.fullName ? `<div class="search-item-name">${u.fullName}</div>` : ''}
+        </div>
+      </a>
+    `;
+  }
+
+  // Ogni volta che l'utente digita, aspettiamo 300ms prima di chiamare /search
+  // (debounce: evita una chiamata per ogni tasto premuto)
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = input.value.trim();
+
+    if (!q) {
+      results.style.display = 'none';
+      return;
+    }
+
+    timer = setTimeout(async () => {
+      try {
+        const res   = await fetch('/search?q=' + encodeURIComponent(q));
+        const users = await res.json();
+
+        if (!Array.isArray(users) || users.length === 0) {
+          results.innerHTML     = '<div class="search-no-results">Nessun utente trovato</div>';
+          results.style.display = 'block';
+          return;
+        }
+
+        results.innerHTML     = users.map(buildItem).join('');
+        results.style.display = 'block';
+      } catch (err) {
+        console.error('Errore ricerca:', err);
+      }
+    }, 300);
+  });
+
+  // Chiudi il dropdown se si clicca fuori dalla barra di ricerca
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !results.contains(e.target)) {
+      results.style.display = 'none';
+    }
+  });
+
+  // Chiudi il dropdown premendo Escape
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      results.style.display = 'none';
+      input.blur();
+    }
+  });
+})();
+</script>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profilo · <%= user.username %></title>
+  <%- include('partials/styles') %>
+  <style>
+    /* ── Layout pagina ── */
+    .page { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    /* ── Header profilo ── */
+    .profile-header {
+      display:     flex;
+      gap:         1.5rem;
+      align-items: center;
+      flex-wrap:   wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Avatar circolare con bordo giallo */
+    .avatar-wrap { flex-shrink: 0; }
+    .avatar {
+      width:         100px;
+      height:        100px;
+      object-fit:    cover;
+      border-radius: 50%;
+      border:        3px solid var(--yellow);
+      display:       block;
+    }
+    /* Placeholder se non c'è avatar: cerchio con iniziale */
+    .avatar-placeholder {
+      width:           100px;
+      height:          100px;
+      border-radius:   50%;
+      border:          3px solid var(--yellow);
+      background:      var(--blue);
+      color:           #fff;
+      font-size:       2.2rem;
+      font-weight:     800;
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+    }
+
+    /* Info testo a destra dell'avatar */
+    .profile-info    { flex: 1; min-width: 180px; }
+    .profile-username {
+      font-size:     1.6rem;
+      font-weight:   800;
+      color:         var(--yellow);
+      margin-bottom: 0.2rem;
+    }
+    .profile-fullname { font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+    .profile-bio      { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+
+    /* Contatore post */
+    .profile-stats {
+      display:     flex;
+      gap:         1.5rem;
+      margin-top:  0.8rem;
+    }
+    .stat { text-align: center; }
+    .stat-num   { font-size: 1.3rem; font-weight: 800; color: var(--text); display: block; }
+    .stat-label { font-size: 0.75rem; color: var(--muted); }
+
+    /* ── Form modifica profilo ── */
+    .edit-section {
+      display:       none;          /* nascosto di default, toggle via JS */
+      margin-top:    1.2rem;
+      border-top:    1px solid #2a2a2a;
+      padding-top:   1.2rem;
+    }
+    .edit-section.open { display: block; }
+    .edit-section h3   { color: var(--yellow); margin-bottom: 1rem; font-size: 1rem; }
+
+    label { display: block; font-size: 0.82rem; color: #aaa; margin-bottom: 0.3rem; margin-top: 0.9rem; }
+    label:first-of-type { margin-top: 0; }
+
+    .btn-row { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+
+    /* ── Post del profilo ── */
+    .posts-title {
+      font-size:     0.95rem;
+      font-weight:   700;
+      color:         var(--yellow);
+      border-bottom: 1px solid #2a2a2a;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .post-card      { border-left: 3px solid var(--blue); }
+    .post-meta      { font-size: 0.78rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+    .post-img       { width: 100%; max-height: 350px; object-fit: cover; border-radius: 6px; margin-top: 0.6rem; }
+    .post-text      { margin-top: 0.5rem; line-height: 1.5; }
+
+    /* Nessun post */
+    .no-posts { text-align: center; padding: 2rem 1rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <div class="page">
+
+    <!-- ════════════════════════════
+         HEADER PROFILO
+    ════════════════════════════ -->
+    <div class="card" style="border-top: 3px solid var(--yellow); margin-bottom: 1.5rem;">
+      <div class="card-body">
+        <div class="profile-header">
+
+          <!-- Avatar o placeholder con iniziale -->
+          <div class="avatar-wrap">
+            <% if (user.avatar) { %>
+              <!--
+                L'avatar viene salvato in uploads/profiles/ dal server.
+                Se il file non esiste più, onerror mostra il placeholder JS.
+              -->
+              <img
+                src="<%= user.avatar %>"
+                class="avatar"
+                alt="Avatar di <%= user.username %>"
+                onerror="this.style.display='none'; document.getElementById('avatarPlaceholder').style.display='flex';"
+              >
+              <div id="avatarPlaceholder" class="avatar-placeholder" style="display:none;">
+                <%= user.username[0].toUpperCase() %>
+              </div>
+            <% } else { %>
+              <!-- Nessun avatar caricato: mostra iniziale -->
+              <div class="avatar-placeholder">
+                <%= user.username[0].toUpperCase() %>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Info utente -->
+          <div class="profile-info">
+            <div class="profile-username">@<%= user.username %></div>
+            <% if (user.fullName) { %>
+              <div class="profile-fullname"><%= user.fullName %></div>
+            <% } %>
+            <% if (user.bio) { %>
+              <div class="profile-bio"><%= user.bio %></div>
+            <% } else { %>
+              <div class="profile-bio text-muted">Nessuna biografia impostata.</div>
+            <% } %>
+
+            <!-- Statistiche: numero post -->
+            <div class="profile-stats">
+              <div class="stat">
+                <span class="stat-num"><%= posts.length %></span>
+                <span class="stat-label">Post</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottone toggle modifica -->
+        <button class="btn btn-blue" id="editBtn">✏️ Modifica profilo</button>
+
+        <!-- ── Form modifica profilo (nascosto di default) ── -->
+        <!--
+          enctype="multipart/form-data" obbligatorio per inviare il file avatar.
+          Il server gestisce questo con profileUpload.single('avatar').
+        -->
+        <div class="edit-section" id="editForm">
+          <h3>Modifica profilo</h3>
+          <form action="/profile/update" method="POST" enctype="multipart/form-data">
+
+            <label>Nome completo</label>
+            <input type="text" name="fullName"
+                   value="<%= user.fullName || '' %>"
+                   placeholder="Es. Mario Rossi">
+
+            <label>Biografia</label>
+            <textarea name="bio" rows="3"
+                      placeholder="Scrivi qualcosa su di te..."><%= user.bio || '' %></textarea>
+
+            <label>Foto profilo (lascia vuoto per non cambiare)</label>
+            <input type="file" name="avatar" accept="image/*"
+                   style="color: var(--muted); margin-top: 0.2rem;">
+
+            <div class="btn-row">
+              <button type="submit" class="btn btn-green">💾 Salva</button>
+              <button type="button" class="btn" id="cancelEdit"
+                      style="background:#2a2a2a; color:#aaa;">Annulla</button>
+            </div>
+          </form>
+        </div>
+
+      </div><!-- /card-body -->
+    </div><!-- /card -->
+
+
+    <!-- ════════════════════════════
+         I TUOI POST
+    ════════════════════════════ -->
+    <div class="posts-title">
+      📷 I tuoi post (<%= posts.length %>)
+    </div>
+
+    <% if (posts.length === 0) { %>
+      <div class="no-posts card">
+        <div class="card-body">
+          📭 Non hai ancora pubblicato niente.<br>
+          <a href="/create-post" class="btn btn-yellow mt-1" style="margin-top:0.8rem; display:inline-block;">
+            + Crea il primo post
+          </a>
+        </div>
+      </div>
+    <% } %>
+
+    <% posts.forEach(post => { %>
+      <%
+        const d = new Date(post.createdAt);
+        const dataOra = d.toLocaleDateString('it-IT', {
+          day: '2-digit', month: 'short', year: 'numeric'
+        }) + ' · ' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+      %>
+      <div class="card post-card">
+        <div class="card-body">
+          <% if (post.text) { %>
+            <p class="post-text"><%= post.text %></p>
+          <% } %>
+          <% if (post.image) { %>
+            <img src="<%= post.image %>" class="post-img" alt="Immagine post">
+          <% } %>
+          <div class="post-meta"><%= dataOra %></div>
+        </div>
+      </div>
+    <% }) %>
+
+  </div><!-- /page -->
+
+  <script>
+    // Toggle modifica profilo: mostra/nasconde il form
+    const editBtn  = document.getElementById('editBtn');
+    const editForm = document.getElementById('editForm');
+    const cancelBtn = document.getElementById('cancelEdit');
+
+    editBtn.addEventListener('click', () => {
+      editForm.classList.toggle('open');
+      // Cambia testo bottone a seconda dello stato
+      editBtn.textContent = editForm.classList.contains('open')
+        ? '✕ Chiudi modifica'
+        : '✏️ Modifica profilo';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      editForm.classList.remove('open');
+      editBtn.textContent = '✏️ Modifica profilo';
+    });
+  </script>
+</body>
+</html>

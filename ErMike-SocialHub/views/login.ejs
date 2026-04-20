@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ErMike-SocialHub · Login</title>
+  <%- include('partials/styles') %>
+  <style>
+    /* Centra il form verticalmente e orizzontalmente */
+    body {
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      min-height:      100vh;
+    }
+
+    .auth-box {
+      width:         min(92vw, 380px);
+      background:    var(--bg-card);
+      border:        1px solid var(--border);
+      border-top:    3px solid var(--blue);  /* accento blu in cima */
+      border-radius: 10px;
+      padding:       2rem 1.8rem;
+    }
+
+    .auth-title {
+      text-align:    center;
+      font-size:     1.6rem;
+      font-weight:   900;
+      color:         var(--yellow);
+      margin-bottom: 0.3rem;
+    }
+    .auth-subtitle {
+      text-align:    center;
+      color:         var(--muted);
+      font-size:     0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    label       { display: block; font-size: 0.82rem; color: #aaa; margin-bottom: 0.3rem; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-box">
+    <!-- Titolo -->
+    <div class="auth-title">📸 ErMike</div>
+    <div class="auth-subtitle">Accedi al tuo account</div>
+
+    <!-- Errore (solo se presente) -->
+    <% if (error) { %>
+      <div class="alert-error">⚠️ <%= error %></div>
+    <% } %>
+
+    <!-- Form login: invia POST a /login -->
+    <form method="POST" action="/login">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="il tuo username" required autofocus>
+      </div>
+      <div class="form-group" style="margin-bottom:1.5rem;">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="la tua password" required>
+      </div>
+      <button type="submit" class="btn btn-blue btn-full">Accedi</button>
+    </form>
+
+    <!-- Link registrazione -->
+    <p class="text-center mt-2" style="font-size:0.88rem; color:var(--muted);">
+      Non hai un account? <a href="/register">Registrati</a>
+    </p>
+  </div>
+
+</body>
+</html>
