@@ -1,0 +1,75 @@
+[
+  {
+    "id": 1776712397965,
+    "userId": "19dac4f3c07",
+    "username": "michael_piaz",
+    "text": "stase serata ? \r\n\r\n",
+    "image": "/uploads/1776712397952-755531685.png",
+    "createdAt": "2026-04-20T19:13:17.965Z",
+    "likes": [
+      "michael_piaz",
+      "bbbb",
+      "aaaa"
+    ]
+  },
+  {
+    "id": 1776712451042,
+    "userId": "19dac505e9e",
+    "username": "Franco",
+    "text": "bella regaz\r\n",
+    "image": null,
+    "createdAt": "2026-04-20T19:14:11.042Z",
+    "likes": [
+      "bbbb",
+      "aaaa"
+    ]
+  },
+  {
+    "id": 1776715961828,
+    "userId": "19dac62fde6",
+    "username": "aaaa",
+    "text": "asdfasdfasd",
+    "image": null,
+    "createdAt": "2026-04-20T20:12:41.828Z",
+    "likes": [
+      "aaaa"
+    ]
+  },
+  {
+    "id": 1776720557073,
+    "userId": "19dac505e9e",
+    "username": "Franco",
+    "text": "cao",
+    "image": "/uploads/1776720557054-531775648.png",
+    "createdAt": "2026-04-20T21:29:17.074Z",
+    "likes": [
+      "aaaa",
+      "Daniel"
+    ]
+  },
+  {
+    "id": 1776775091524,
+    "userId": "19db00be61e",
+    "username": "cccc",
+    "text": "raga oggi schedina ? ",
+    "image": "/uploads/1776775091522-860132666.png",
+    "likes": [
+      "aaaa",
+      "bbbb",
+      "Daniel"
+    ],
+    "createdAt": "2026-04-21T12:38:11.524Z"
+  },
+  {
+    "id": 1776776964435,
+    "userId": "19db026d14b",
+    "username": "Daniel",
+    "text": "Ciao ragazzi cosa ne pensate del mio GrowUp 2008 vs 2019",
+    "image": "/uploads/1776776964433-348269852.jpg",
+    "likes": [
+      "aaaa",
+      "Daniel"
+    ],
+    "createdAt": "2026-04-21T13:09:24.435Z"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "follower": "aaaa",
+    "followed": "bbbb"
+  },
+  {
+    "follower": "aaaa",
+    "followed": "Daniel"
+  },
+  {
+    "follower": "Daniel",
+    "followed": "Franco"
+  }
+]
