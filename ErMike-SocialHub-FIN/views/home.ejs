@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ErMike-SocialHub · Home</title>
+
+  <link rel="stylesheet" href="img/css/style.css">
+
+  <%- include('partials/styles') %>
+  <!--<style>
+    /* ── Layout pagina centrato ── */
+    .page { max-width: 600px; margin: 0 auto; padding: 1.2rem 1rem; }
+
+    /* ── Card "crea post" ── */
+    .new-post-card              { border-top: 3px solid var(--yellow); }
+    .new-post-card .card-header { color: var(--yellow); }
+
+    /* ── Singolo post ── */
+    .post-card     { border-left: 3px solid var(--blue); }
+    .post-username { font-weight: 700; color: var(--blue); }
+    .post-meta     { font-size: 0.78rem; color: var(--muted); font-style: italic; }
+    .post-text     { margin-top: 0.6rem; line-height: 1.6; }
+    .post-img      { width: 100%; max-height: 400px; object-fit: cover; border-radius: 6px; margin-top: 0.7rem; }
+
+    /* ── Barra azioni sotto ogni post ── */
+    .post-actions {
+      display:       flex;
+      align-items:   center;
+      gap:           0.5rem;
+      padding:       0.5rem 1rem;
+      border-top:    1px solid #222;
+      /* la barra azioni è leggermente rientrata rispetto al body */
+    }
+
+    /* Bottone generico azione (like, commenta, elimina) */
+    .action-btn {
+      background:    transparent;
+      border:        1px solid #333;
+      border-radius: 20px;
+      color:         var(--text);
+      padding:       0.28rem 0.8rem;
+      font-size:     0.82rem;
+      cursor:        pointer;
+      transition:    background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .action-btn:hover           { border-color: var(--blue); color: var(--blue); }
+    .action-btn.liked           { border-color: var(--red); color: var(--red); }
+    /* Il bottone elimina va sempre a destra */
+    .action-btn.delete-btn      { margin-left: auto; border-color: #3a1a1a; color: #955; }
+    .action-btn.delete-btn:hover{ border-color: var(--red); color: var(--red); background: #1a0808; }
+
+    /* Bottone "commenta" aperto → bordo verde */
+    .action-btn.comment-open    { border-color: var(--green); color: var(--green); }
+
+    /* ── Sezione commenti (nascosta di default) ── */
+    .comments-section {
+      display:    none;         /* nascosta: viene mostrata dal JS al click su "Commenta" */
+      padding:    0.8rem 1rem;
+      border-top: 1px solid #1e1e1e;
+    }
+    .comments-section.open { display: block; }
+
+    /* Singolo commento nel feed */
+    .comment-item {
+      display:       flex;
+      gap:           0.5rem;
+      margin-bottom: 0.6rem;
+      font-size:     0.88rem;
+    }
+    .comment-item-avatar {
+      width:           28px; height: 28px;
+      border-radius:   50%;
+      background:      var(--blue);
+      color:           #fff;
+      font-size:       0.75rem;
+      font-weight:     700;
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      flex-shrink:     0;
+    }
+    .comment-author { font-weight: 700; color: var(--blue); margin-right: 0.3rem; }
+    .comment-time   { font-size: 0.73rem; color: var(--muted); margin-left: 0.3rem; }
+
+    /* Form nuovo commento */
+    .comment-form { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+    .comment-form input { flex: 1; }
+
+    /* Bottone piccolo (usato per "Invia" nei commenti) */
+    .btn-sm { padding: 0.3rem 0.75rem; font-size: 0.82rem; }
+
+    /* ── Feed vuoto ── */
+    .empty-feed      { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+    .empty-feed-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  </style>-->
+</head>
+<body>
+
+  <%- include('partials/navbar') %>
+
+  <div class="page">
+
+    <!-- ── Bottone crea nuovo post ── -->
+    <div class="card new-post-card mb-1">
+      <div class="card-header">✏️ Cosa vuoi condividere?</div>
+      <div class="card-body">
+        <a href="/create-post" class="btn btn-yellow">+ Crea nuovo post</a>
+      </div>
+    </div>
+
+    <!-- ── Feed ── -->
+    <% if (posts.length === 0) { %>
+      <div class="empty-feed">
+        <div class="empty-feed-icon">📭</div>
+        <p>Nessun post ancora.</p>
+        <p>Sii il primo a pubblicare qualcosa!</p>
+      </div>
+
+    <% } else { %>
+
+      <%
+        /*
+          Loop su tutti i post, già ordinati dal più recente nel server.
+          Ogni oggetto post contiene: id, username, text, image, createdAt, likes[]
+        */
+      %>
+      <% posts.forEach(post => { %>
+        <%
+          /* Formatta data e ora in italiano */
+          const d = new Date(post.createdAt);
+          const dataOra = d.toLocaleDateString('it-IT', {
+            day: '2-digit', month: 'short', year: 'numeric'
+          }) + ' · ' + d.toLocaleTimeString('it-IT', {
+            hour: '2-digit', minute: '2-digit'
+          });
+          /* L'utente loggato ha già messo like a questo post? */
+          const hasLiked = (post.likes || []).includes(user.username);
+        %>
+
+        <div class="card post-card">
+          <div class="card-body">
+            <!-- Autore e data/ora -->
+            <span class="post-username">@<%= post.username %></span>
+            <span class="post-meta"> · <%= dataOra %></span>
+
+            <!-- Testo (opzionale) -->
+            <% if (post.text) { %>
+              <p class="post-text"><%= post.text %></p>
+            <% } %>
+
+            <!-- Immagine (opzionale) -->
+            <% if (post.image) { %>
+              <img src="<%= post.image %>" class="post-img" alt="Immagine post">
+            <% } %>
+          </div>
+
+          <!-- ── Barra azioni ── -->
+          <div class="post-actions">
+
+            <!-- Like: rosso se già messo like, neutro altrimenti -->
+            <button
+              class="action-btn like-btn <%= hasLiked ? 'liked' : '' %>"
+              data-id="<%= post.id %>"
+            >
+              ❤️ <span class="like-count"><%= (post.likes || []).length %></span>
+            </button>
+
+            <!-- Apri/chiudi sezione commenti -->
+            <button
+              class="action-btn comment-toggle-btn"
+              data-id="<%= post.id %>"
+            >
+              💬 Commenta
+            </button>
+
+            <!-- Elimina: visibile solo all'autore del post -->
+            <% if (post.username === user.username) { %>
+              <button class="action-btn delete-btn" data-id="<%= post.id %>">
+                🗑️ Elimina
+              </button>
+            <% } %>
+          </div>
+
+          <!-- ── Sezione commenti (toggle) ── -->
+          <!--
+            Di default display:none (classe CSS).
+            Il JS aggiunge la classe "open" per mostrarla.
+          -->
+          <div class="comments-section" id="comments-<%= post.id %>">
+            <div class="comments-list"></div>
+            <!-- Form invio nuovo commento -->
+            <form class="comment-form" data-id="<%= post.id %>">
+              <input type="text" class="comment-input" placeholder="Scrivi un commento...">
+              <button type="submit" class="btn btn-blue btn-sm">Invia</button>
+            </form>
+          </div>
+
+        </div><!-- /post-card -->
+      <% }) %>
+    <% } %>
+
+  </div><!-- /page -->
+
+
+  <script>
+  // =============================================================
+  //  JavaScript lato client — home.ejs
+  // =============================================================
+
+  // ── LIKE ─────────────────────────────────────────────────────
+  document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const postId = btn.dataset.id;
+      try {
+        const res  = await fetch('/like/' + postId, { method: 'POST' });
+        const data = await res.json();
+
+        // Aggiorna il numero visualizzato
+        btn.querySelector('.like-count').textContent = data.likes;
+
+        // Aggiunge/rimuove la classe "liked" (colore rosso)
+        if (data.liked) btn.classList.add('liked');
+        else            btn.classList.remove('liked');
+      } catch (err) {
+        console.error('Errore like:', err);
+      }
+    });
+  });
+
+
+  // ── ELIMINA POST ─────────────────────────────────────────────
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Vuoi davvero eliminare questo post?')) return;
+
+      const postId = btn.dataset.id;
+      try {
+        const res = await fetch('/post/' + postId, { method: 'DELETE' });
+        if (res.ok) {
+          // Rimuove l'intera card dal DOM senza ricaricare la pagina
+          const card = btn.closest('.post-card');
+          if (card) card.remove();
+        } else {
+          alert('Errore durante l\'eliminazione.');
+        }
+      } catch (err) {
+        console.error('Errore eliminazione:', err);
+      }
+    });
+  });
+
+
+  // ── COMMENTI: toggle apri/chiudi ─────────────────────────────
+  document.querySelectorAll('.comment-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const postId  = btn.dataset.id;
+      const section = document.getElementById('comments-' + postId);
+
+      if (section.classList.contains('open')) {
+        // Era aperta → chiudi
+        section.classList.remove('open');
+        btn.classList.remove('comment-open');
+      } else {
+        // Era chiusa → apri e carica commenti
+        section.classList.add('open');
+        btn.classList.add('comment-open');
+        await loadComments(postId);
+      }
+    });
+  });
+
+
+  // ── COMMENTI: carica dal server ───────────────────────────────
+  async function loadComments(postId) {
+    try {
+      const res      = await fetch('/comments/' + postId);
+      const comments = await res.json();
+      renderComments(postId, comments);
+    } catch (err) {
+      console.error('Errore caricamento commenti:', err);
+    }
+  }
+
+  // Costruisce l'HTML per la lista commenti e lo inserisce nel DOM
+  function renderComments(postId, comments) {
+    const container = document.querySelector('#comments-' + postId + ' .comments-list');
+    if (!container) return;
+
+    if (comments.length === 0) {
+      container.innerHTML = '<div class="text-muted" style="margin-bottom:0.5rem;">Ancora nessun commento.</div>';
+      return;
+    }
+
+    container.innerHTML = comments.map(c => {
+      const ora = new Date(c.createdAt).toLocaleTimeString('it-IT', {
+        hour: '2-digit', minute: '2-digit'
+      });
+      return `
+        <div class="comment-item">
+          <div class="comment-item-avatar">${c.username[0].toUpperCase()}</div>
+          <div>
+            <span class="comment-author">@${c.username}</span>
+            <span class="comment-time">${ora}</span>
+            <div>${c.text}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+
+  // ── COMMENTI: invia nuovo commento ───────────────────────────
+  document.querySelectorAll('.comment-form').forEach(form => {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();  // impedisce il ricaricamento della pagina
+
+      const postId = form.dataset.id;
+      const input  = form.querySelector('.comment-input');
+      const text   = input.value.trim();
+      if (!text) return;
+
+      try {
+        const res = await fetch('/comment/' + postId, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ text })
+        });
+
+        if (res.ok) {
+          input.value = '';
+          await loadComments(postId);  // ricarica la lista commenti
+        }
+      } catch (err) {
+        console.error('Errore invio commento:', err);
+      }
+    });
+  });
+  </script>
+
+</body>
+</html>

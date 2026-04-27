@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1777322247650,
+    "userId": "19dd0a8557d",
+    "username": "Test",
+    "text": "questa è una prova",
+    "image": "/uploads/1777322247645-546382084.png",
+    "likes": [
+      "Test",
+      "Tester"
+    ],
+    "createdAt": "2026-04-27T20:37:27.650Z"
+  },
+  {
+    "id": 1777322514493,
+    "userId": "19dd0a9bbcd",
+    "username": "Tester",
+    "text": "HEYYY",
+    "image": "/uploads/1777322514487-897820806.png",
+    "likes": [],
+    "createdAt": "2026-04-27T20:41:54.493Z"
+  }
+]

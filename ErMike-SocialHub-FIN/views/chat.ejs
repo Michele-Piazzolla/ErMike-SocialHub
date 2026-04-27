@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ErMike-SocialHub · Chat globale</title>
+  <%- include('partials/styles') %>
+  <link rel="stylesheet" href="public/css/style.css">
+  <!--<style>
+    /* Layout a colonna intera altezza 
+    body   { display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+
+    /* Titolo pagina chat */
+    .chat-title {
+      padding:       0.7rem 1rem;
+      background:    #111;
+      border-bottom: 1px solid var(--border);
+      font-weight:   700;
+      color:         var(--green);
+      font-size:     0.95rem;
+      flex-shrink:   0;
+    }
+
+    /* Area messaggi — prende tutto lo spazio disponibile */
+    .messages {
+      flex:       1;
+      overflow-y: auto;
+      padding:    1rem;
+      display:    flex;
+      flex-direction: column;
+      gap:        0.5rem;
+    }
+
+    /* ── Riga messaggio ──
+       Contiene la bolla più eventuale info mittente.
+       .mine = messaggio dell'utente corrente → allineato a destra
+    */
+    .msg-row       { display:flex; flex-direction:column; max-width:65%; }
+    .msg-row.mine  { align-self: flex-end; align-items: flex-end; }
+    .msg-row.other { align-self: flex-start; align-items: flex-start; }
+
+    /* Bolla messaggio */
+    .bubble {
+      padding:       0.5rem 0.85rem;
+      border-radius: 16px;
+      font-size:     0.92rem;
+      line-height:   1.45;
+      word-break:    break-word;
+    }
+    /* Bolla propria — verde lime */
+    .msg-row.mine  .bubble {
+      background:    var(--green);
+      color:         #000;
+      border-bottom-right-radius: 4px;
+    }
+    /* Bolla altrui — grigio scuro */
+    .msg-row.other .bubble {
+      background:    #2a2a2a;
+      color:         var(--text);
+      border-bottom-left-radius: 4px;
+    }
+
+    /* Username sopra alla bolla (solo per i messaggi altrui) */
+    .msg-username  { font-size:0.78rem; font-weight:700; color:var(--blue); margin-bottom:0.2rem; }
+
+    /* Orario sotto alla bolla */
+    .msg-time {
+      font-size:   0.72rem;
+      color:       var(--muted);
+      font-style:  italic;
+      margin-top:  0.2rem;
+    }
+
+    /* ── Barra invio ── */
+    .input-bar {
+      display:     flex;
+      gap:         0.5rem;
+      padding:     0.75rem 1rem;
+      background:  #111;
+      border-top:  2px solid var(--green);
+      flex-shrink: 0;
+    }
+    .input-bar input {
+      flex:          1;
+      border-radius: 20px;
+      padding:       0.5rem 1rem;
+    }
+    .input-bar input:disabled { opacity: 0.4; }
+
+    /* Stato connessione in alto */
+    .conn-status {
+      font-size:  0.78rem;
+      padding:    0.3rem 1rem;
+      background: #0a2a0a;
+      color:      var(--green);
+      flex-shrink: 0;
+    }
+    .conn-status.disconnesso { background:#2a0a0a; color:var(--red); }
+  </style>-->
+</head>
+<body class="chat-page">
+
+  <%- include('partials/navbar') %>
+<div class="chat-page-wrap"> <!-- BRAZY SHIT -->
+  <!-- Indicatore stato connessione WebSocket -->
+  <div class="conn-status" id="connStatus">⏳ Connessione in corso…</div>
+
+  <div class="chat-title">🌍 Chat Globale — tutti possono leggere e scrivere</div>
+
+  <!-- Area messaggi — popolata da JavaScript -->
+  <div class="messages" id="messages"></div>
+
+  <!-- Barra invio -->
+  <div class="input-bar">
+    <input type="text" id="msgInput"
+           placeholder="Scrivi un messaggio…" disabled
+           maxlength="500">
+    <button class="btn btn-green" id="sendBtn" disabled onclick="inviaMessaggio()">
+      Invia
+    </button>
+  </div>
+</div>
+  <script>
+    /*
+      ══════════════════════════════════════════════
+      LOGICA CHAT WEBSOCKET
+      Basata sul tuo vecchio progetto chat, ripulita.
+      Protocollo messaggi (server → client):
+        tipo 1 → storico iniziale  { tipo:1, storico:[...] }
+        tipo 2 → nuovo messaggio   { tipo:2, msg:{...} }
+        tipo -1 → errore            { tipo:-1, errore:"..." }
+      Protocollo messaggi (client → server):
+        tipo 0 → autenticazione    { tipo:0, username:"..." }
+        tipo 1 → invia messaggio   { tipo:1, testo:"..." }
+      ══════════════════════════════════════════════
+    */
+
+    /* Username dell'utente corrente (iniettato da EJS) */
+    const ME = '<%= user.username %>';
+
+    const msgInput  = document.getElementById('msgInput');
+    const sendBtn   = document.getElementById('sendBtn');
+    const messages  = document.getElementById('messages');
+    const connStatus = document.getElementById('connStatus');
+
+    /* Connessione WebSocket al server (stesso host, stessa porta) */
+    const ws = new WebSocket('ws://' + location.host);
+
+    /* ── Connessione aperta ── */
+    ws.onopen = () => {
+      /* Invia subito l'autenticazione con il nostro username */
+      ws.send(JSON.stringify({ tipo: 0, username: ME }));
+    };
+
+    /* ── Messaggio ricevuto dal server ── */
+    ws.onmessage = event => {
+      const dati = JSON.parse(event.data);
+
+      /* Storico iniziale: carica tutti i messaggi passati */
+      if (dati.tipo === 1) {
+        messages.innerHTML = '';
+        dati.storico.forEach(aggiungiBolla);
+        scorriGiu();
+
+        /* Abilita l'input ora che siamo connessi */
+        msgInput.disabled = false;
+        sendBtn.disabled  = false;
+        msgInput.focus();
+        connStatus.textContent = '🟢 Connesso come ' + ME;
+        connStatus.classList.remove('disconnesso');
+      }
+
+      /* Nuovo messaggio in arrivo in tempo reale */
+      else if (dati.tipo === 2) {
+        aggiungiBolla(dati.msg);
+        scorriGiu();
+      }
+
+      /* Errore (es. username già connesso) */
+      else if (dati.tipo === -1) {
+        connStatus.textContent = '🔴 ' + dati.errore;
+        connStatus.classList.add('disconnesso');
+      }
+    };
+
+    /* ── Disconnessione ── */
+    ws.onclose = () => {
+      msgInput.disabled = true;
+      sendBtn.disabled  = true;
+      connStatus.textContent = '🔴 Disconnesso · ricarica la pagina';
+      connStatus.classList.add('disconnesso');
+    };
+
+    /* ── Crea e aggiunge una bolla nella chat ── */
+    function aggiungiBolla(msg) {
+      const isMio = msg.username === ME;
+
+      /* Formatta l'orario */
+      const ora = new Date(msg.timestamp).toLocaleTimeString('it-IT', {
+        hour: '2-digit', minute: '2-digit'
+      });
+
+      /* Riga contenitore (mine = mio, other = altrui) */
+      const riga = document.createElement('div');
+      riga.className = 'msg-row ' + (isMio ? 'mine' : 'other');
+
+      /* Username (solo per i messaggi altrui) */
+      if (!isMio) {
+        const user = document.createElement('div');
+        user.className   = 'msg-username';
+        user.textContent = '@' + msg.username;
+        riga.appendChild(user);
+      }
+
+      /* Bolla testo */
+      const bubble = document.createElement('div');
+      bubble.className   = 'bubble';
+      bubble.textContent = msg.testo;   // textContent evita XSS
+      riga.appendChild(bubble);
+
+      /* Orario */
+      const time = document.createElement('div');
+      time.className   = 'msg-time';
+      time.textContent = ora;
+      riga.appendChild(time);
+
+      messages.appendChild(riga);
+    }
+
+    /* ── Scorri in fondo dopo ogni messaggio ── */
+    function scorriGiu() {
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    /* ── Invia messaggio ── */
+    function inviaMessaggio() {
+      const testo = msgInput.value.trim();
+      if (!testo) return;
+
+      ws.send(JSON.stringify({ tipo: 1, testo }));
+      msgInput.value = '';
+      msgInput.focus();
+    }
+
+    /* Invia anche premendo Invio (senza Shift) */
+    msgInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        inviaMessaggio();
+      }
+    });
+  </script>
+
+</body>
+</html>

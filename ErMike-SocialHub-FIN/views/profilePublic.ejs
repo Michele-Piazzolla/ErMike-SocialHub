@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title><%= profileUser.username %> · Profilo</title>
+  <%- include('partials/styles') %>
+  <style>
+    .page { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+    .profile-header { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .avatar { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 3px solid var(--yellow); }
+    .avatar-placeholder { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--yellow); background: var(--blue); color: #fff; font-size: 2.2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .profile-info { flex: 1; }
+    .profile-username { font-size: 1.6rem; font-weight: 800; color: var(--yellow); }
+    .profile-fullname { font-weight: 600; margin-bottom: 0.3rem; }
+    .profile-bio { color: var(--muted); font-size: 0.9rem; }
+    .profile-stats { display: flex; gap: 1.5rem; margin-top: 0.8rem; }
+    .stat { text-align: center; }
+    .stat-num { font-size: 1.3rem; font-weight: 800; display: block; }
+    .stat-label { font-size: 0.75rem; color: var(--muted); }
+    .follow-btn { margin-top: 0.5rem; }
+    .posts-title { font-size: 0.95rem; font-weight: 700; color: var(--yellow); border-bottom: 1px solid #2a2a2a; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+    .post-card { border-left: 3px solid var(--blue); margin-bottom: 1rem; }
+    .post-meta { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+    .post-img { max-width: 100%; max-height: 350px; border-radius: 6px; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <div class="page">
+    <div class="card" style="border-top: 3px solid var(--yellow);">
+      <div class="card-body">
+        <div class="profile-header">
+          <!-- Avatar -->
+          <div>
+            <% if (profileUser.avatar) { %>
+              <img src="<%= profileUser.avatar %>" class="avatar" onerror="this.style.display='none'; this.nextSibling.style.display='flex';">
+              <div class="avatar-placeholder" style="display:none;"><%= profileUser.username[0].toUpperCase() %></div>
+            <% } else { %>
+              <div class="avatar-placeholder"><%= profileUser.username[0].toUpperCase() %></div>
+            <% } %>
+          </div>
+
+          <div class="profile-info">
+            <div class="profile-username">@<%= profileUser.username %></div>
+            <% if (profileUser.fullName) { %>
+              <div class="profile-fullname"><%= profileUser.fullName %></div>
+            <% } %>
+            <div class="profile-bio"><%= profileUser.bio || 'Nessuna biografia.' %></div>
+
+            <div class="profile-stats">
+              <div class="stat"><span class="stat-num"><%= posts.length %></span><span class="stat-label">Post</span></div>
+              <div class="stat"><span class="stat-num" id="followerCount"><%= followerCount %></span><span class="stat-label">Follower</span></div>
+              <div class="stat"><span class="stat-num"><%= followingCount %></span><span class="stat-label">Seguiti</span></div>
+            </div>
+
+            <% if (isOwner) { %>
+              <a href="/profile" class="btn btn-blue follow-btn" style="margin-top:0.5rem;">✏️ Modifica profilo</a>
+            <% } else { %>
+              <div style="display: flex; gap: 0.5rem; margin-top:0.5rem;">
+                <button id="followBtn" class="btn <%= isFollowing ? 'btn-secondary' : 'btn-yellow' %>" data-username="<%= profileUser.username %>">
+                  <%= isFollowing ? '✅ Seguito' : '+ Segui' %>
+                </button>
+                <a href="/private-chat?user=<%= profileUser.username %>" class="btn btn-blue">✉️ Messaggio</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="posts-title">📷 Post di @<%= profileUser.username %></div>
+    <% if (posts.length === 0) { %>
+      <div class="card"><div class="card-body text-muted">Nessun post pubblicato.</div></div>
+    <% } else { %>
+      <% posts.forEach(post => { %>
+        <div class="card post-card">
+          <div class="card-body">
+            <% if (post.text) { %><p><%= post.text %></p><% } %>
+            <% if (post.image) { %><img src="<%= post.image %>" class="post-img"><% } %>
+            <div class="post-meta"><%= new Date(post.createdAt).toLocaleString() %></div>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+  <script>
+    // Follow / Unfollow dinamico
+    const followBtn = document.getElementById('followBtn');
+    if (followBtn) {
+      followBtn.addEventListener('click', async () => {
+        const username = followBtn.dataset.username;
+        try {
+          const res = await fetch(`/follow/${username}`, { method: 'POST' });
+          const data = await res.json();
+          if (data.following) {
+            followBtn.textContent = '✅ Seguito';
+            followBtn.classList.remove('btn-yellow');
+            followBtn.classList.add('btn-secondary');
+            // Aggiorna contatore follower (opzionale, ma carino)
+            const countSpan = document.getElementById('followerCount');
+            if (countSpan) countSpan.textContent = parseInt(countSpan.textContent) + 1;
+          } else {
+            followBtn.textContent = '+ Segui';
+            followBtn.classList.remove('btn-secondary');
+            followBtn.classList.add('btn-yellow');
+            const countSpan = document.getElementById('followerCount');
+            if (countSpan) countSpan.textContent = parseInt(countSpan.textContent) - 1;
+          }
+        } catch (err) { console.error(err); }
+      });
+    }
+  </script>
+</body>
+</html>

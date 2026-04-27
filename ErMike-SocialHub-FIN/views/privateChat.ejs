@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Messaggi privati · ErMike</title>
+  <%- include('partials/styles') %>
+  <style>
+    body { overflow: hidden; }
+    .chat-container {
+      display: flex;
+      height: calc(100vh - 56px); /* altezza totale meno navbar */
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    /* Sidebar conversazioni */
+    .conversations-sidebar {
+      width: 300px;
+      background: #111;
+      border-right: 1px solid #2a2a2a;
+      overflow-y: auto;
+    }
+    .conv-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid #1e1e1e;
+      transition: background 0.1s;
+    }
+    .conv-item:hover { background: #1a1a1a; }
+    .conv-item.active { background: #1e2a1e; border-left: 3px solid var(--green); }
+    .conv-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+    }
+    .conv-info { flex: 1; }
+    .conv-name { font-weight: 600; color: var(--yellow); }
+    .conv-last { font-size: 0.75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Area messaggi */
+    .messages-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #0d0d0d;
+    }
+    .messages-header {
+      padding: 12px 20px;
+      border-bottom: 1px solid #2a2a2a;
+      background: #111;
+    }
+    .messages-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .message-row {
+      display: flex;
+      flex-direction: column;
+      max-width: 70%;
+    }
+    .message-row.mine { align-self: flex-end; align-items: flex-end; }
+    .message-row.other { align-self: flex-start; }
+    .message-bubble {
+      padding: 8px 12px;
+      border-radius: 16px;
+      background: #1e1e1e;
+      color: var(--text);
+    }
+    .mine .message-bubble { background: var(--green); color: #000; }
+    .message-time { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+
+    .input-area {
+      padding: 12px;
+      border-top: 1px solid #2a2a2a;
+      display: flex;
+      gap: 8px;
+      background: #111;
+    }
+    .input-area input { flex: 1; }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <div class="chat-container">
+    <!-- Sidebar conversazioni -->
+    <div class="conversations-sidebar" id="conversationsList">
+      <div class="conv-item" style="justify-content: center; color: var(--muted);">
+        Caricamento conversazioni...
+      </div>
+    </div>
+
+    <!-- Area centrale -->
+    <div class="messages-area" id="messagesArea" style="display: none;">
+      <div class="messages-header" id="chatHeader"></div>
+      <div class="messages-list" id="messagesList"></div>
+      <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Scrivi un messaggio..." disabled>
+        <button class="btn btn-green" id="sendBtn" disabled>Invia</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentChatUser = null;
+    let ws = null;
+    let activeConversations = [];
+
+    // Connessione WebSocket
+    function connectWebSocket() {
+      ws = new WebSocket(`ws://${location.host}`);
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ tipo: 0, username: '<%= user.username %>' }));
+      };
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.tipo === 10) { // nuovo messaggio privato
+          const msg = data.msg;
+          // Se la chat corrente è con l'utente del messaggio, aggiungilo alla UI
+          if (currentChatUser && (msg.from === currentChatUser || msg.to === currentChatUser)) {
+            appendMessage(msg);
+          }
+          // Ricarica la lista conversazioni (per aggiornare l'ultimo messaggio)
+          loadConversations();
+        }
+      };
+    }
+
+    // Carica lista conversazioni
+    async function loadConversations() {
+      const res = await fetch('/api/conversations');
+      const convs = await res.json();
+      activeConversations = convs;
+      const container = document.getElementById('conversationsList');
+      if (convs.length === 0) {
+        container.innerHTML = '<div class="conv-item" style="justify-content:center;">Nessuna conversazione</div>';
+        return;
+      }
+      container.innerHTML = convs.map(c => `
+        <div class="conv-item" data-username="${c.username}">
+          <div class="conv-avatar">${c.avatar ? `<img src="${c.avatar}" style="width:100%;height:100%;object-fit:cover;">` : c.username[0].toUpperCase()}</div>
+          <div class="conv-info">
+            <div class="conv-name">${c.fullName || c.username}</div>
+            <div class="conv-last">@${c.username}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // Aggiungi event listener per ogni conversazione
+      document.querySelectorAll('.conv-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const username = el.dataset.username;
+          openChat(username);
+          // evidenzia attivo
+          document.querySelectorAll('.conv-item').forEach(i => i.classList.remove('active'));
+          el.classList.add('active');
+        });
+      });
+    }
+
+    // Apre la chat con un utente
+    async function openChat(username) {
+      currentChatUser = username;
+      document.getElementById('messagesArea').style.display = 'flex';
+      document.getElementById('chatHeader').innerHTML = `<strong>${username}</strong>`;
+      document.getElementById('messageInput').disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+
+      // Carica storico
+      const res = await fetch(`/api/messages/${username}`);
+      const messages = await res.json();
+      const messagesList = document.getElementById('messagesList');
+      messagesList.innerHTML = '';
+      messages.forEach(appendMessage);
+      messagesList.scrollTop = messagesList.scrollHeight;
+    }
+
+    function appendMessage(msg) {
+      const isMine = msg.from === '<%= user.username %>';
+      const container = document.getElementById('messagesList');
+      const div = document.createElement('div');
+      div.className = `message-row ${isMine ? 'mine' : 'other'}`;
+      div.innerHTML = `
+        <div class="message-bubble">${escapeHtml(msg.text)}</div>
+        <div class="message-time">${new Date(msg.timestamp).toLocaleTimeString()}</div>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Invia messaggio privato via WebSocket
+    function sendPrivateMessage(text) {
+      if (!currentChatUser || !text.trim()) return;
+      ws.send(JSON.stringify({
+        tipo: 10,
+        to: currentChatUser,
+        text: text.trim()
+      }));
+    }
+
+    // Helper per evitare XSS
+    function escapeHtml(str) {
+      return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    // Eventi UI
+    document.getElementById('sendBtn').addEventListener('click', () => {
+      const input = document.getElementById('messageInput');
+      sendPrivateMessage(input.value);
+      input.value = '';
+    });
+    document.getElementById('messageInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('sendBtn').click();
+    });
+
+    // Avvio
+    connectWebSocket();
+    (async () => {
+      await loadConversations();  // aspetta che la lista conversazioni sia pronta
+      const urlParams = new URLSearchParams(window.location.search);
+      const userParam = urlParams.get('user');
+      if (userParam) {
+        // Cerca l'elemento della conversazione nella lista
+        let convItem = document.querySelector(`.conv-item[data-username="${userParam}"]`);
+        if (convItem) {
+          convItem.click();               // se esiste già, aprilo
+        } else {
+          openChat(userParam);            // altrimenti apri la chat direttamente
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

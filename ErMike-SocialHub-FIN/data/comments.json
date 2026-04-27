@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1777322255959,
+    "postId": 1777322247650,
+    "username": "Test",
+    "text": "Funziona ?",
+    "createdAt": "2026-04-27T20:37:35.959Z"
+  },
+  {
+    "id": 1777322287134,
+    "postId": 1777322247650,
+    "username": "Tester",
+    "text": "parrebbe funzionare",
+    "createdAt": "2026-04-27T20:38:07.134Z"
+  },
+  {
+    "id": 1777322294214,
+    "postId": 1777322247650,
+    "username": "Tester",
+    "text": "ti scrivo un messaggio in privato",
+    "createdAt": "2026-04-27T20:38:14.214Z"
+  },
+  {
+    "id": 1777322472534,
+    "postId": 1777322247650,
+    "username": "Tester",
+    "text": "Top",
+    "createdAt": "2026-04-27T20:41:12.534Z"
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1777322331749,
+    "from": "Tester",
+    "to": "Test",
+    "text": "si fra funziona tutto, ti ho seguito e vedo il tuo profilo quindi TOPPPPP",
+    "timestamp": "2026-04-27T20:38:51.749Z",
+    "read": false
+  },
+  {
+    "id": 1777322653604,
+    "from": "Test",
+    "to": "Tester",
+    "text": "DAJEEEEEEEE",
+    "timestamp": "2026-04-27T20:44:13.604Z",
+    "read": false
+  },
+  {
+    "id": 1777322674764,
+    "from": "Test",
+    "to": "Tester",
+    "text": "Tanto Palladino di sicuro trova qualcosa che non va quindi boh",
+    "timestamp": "2026-04-27T20:44:34.764Z",
+    "read": false
+  },
+  {
+    "id": 1777322679789,
+    "from": "Test",
+    "to": "Tester",
+    "text": "speriamo vada bene",
+    "timestamp": "2026-04-27T20:44:39.789Z",
+    "read": false
+  }
+]

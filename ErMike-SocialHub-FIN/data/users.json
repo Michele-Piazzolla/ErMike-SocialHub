@@ -1,0 +1,47 @@
+[
+  {
+    "id": "19dac4f3c07",
+    "username": "michael_piaz",
+    "password": "michael_piaz",
+    "joinedAt": "2026-04-20T19:12:47.111Z",
+    "bio": "",
+    "fullName": "",
+    "avatar": null
+  },
+  {
+    "id": "19dac505e9e",
+    "username": "Franco",
+    "password": "franco",
+    "joinedAt": "2026-04-20T19:14:01.502Z",
+    "bio": "",
+    "fullName": "",
+    "avatar": null
+  },
+  {
+    "id": "19dd0a8557d",
+    "username": "Test",
+    "password": "Test",
+    "fullName": "",
+    "bio": "",
+    "avatar": null,
+    "joinedAt": "2026-04-27T20:36:26.109Z"
+  },
+  {
+    "id": "19dd0a9bbcd",
+    "username": "Tester",
+    "password": "Tester",
+    "fullName": "Michele",
+    "bio": "HEY \r\n",
+    "avatar": null,
+    "joinedAt": "2026-04-27T20:37:57.837Z"
+  },
+  {
+    "id": "19dd0b30ee8",
+    "username": "aaaa",
+    "password": "aaaa",
+    "fullName": "",
+    "bio": "",
+    "avatar": null,
+    "joinedAt": "2026-04-27T20:48:08.936Z"
+  }
+]

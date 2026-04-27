@@ -1,0 +1,1246 @@
+/* ============================================================
+   ErMike-SocialHub — style.css  (versione 2)
+   Copre: navbar, home, chat globale, chat privata, profilo,
+          crea post, login/register, utility
+   ============================================================ */
+
+
+/* ═══════════════════════════════════════════════════════════
+   1. VARIABILI CSS
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  /* Superfici */
+  --bg-body:       #0a0a0a;
+  --bg-surface:    #111111;
+  --bg-elevated:   #1a1a1a;
+  --bg-input:      #222222;
+  --bg-hover:      #252525;
+  --border-light:  #2c2c2c;
+  --border-medium: #383838;
+
+  /* Testo */
+  --text-primary:   #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --text-muted:     #606060;
+
+  /* Accenti */
+  --accent-blue:   #1e88e5;
+  --accent-blue-d: #1565c0;
+  --accent-red:    #e53935;
+  --accent-red-d:  #b71c1c;
+  --accent-green:  #00e676;
+  --accent-green-d:#00c853;
+  --accent-yellow: #ffd600;
+  --accent-yellow-d:#f9a825;
+
+  /* Ombre */
+  --shadow-sm:    0 2px 6px rgba(0,0,0,0.35);
+  --shadow-md:    0 4px 14px rgba(0,0,0,0.45);
+  --shadow-lg:    0 8px 28px rgba(0,0,0,0.55);
+  --shadow-focus: 0 0 0 3px rgba(30,136,229,0.35);
+
+  /* Transizioni */
+  --t-fast:   0.13s ease;
+  --t-normal: 0.22s ease;
+  --t-slow:   0.38s ease;
+
+  /* Raggi */
+  --r-sm:  8px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+  --r-full: 9999px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   2. RESET & BASE
+   ═══════════════════════════════════════════════════════════ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg-body);
+  /* Griglia di punti sottilissima come sfondo — meno piatta del mono-colore */
+  background-image:
+    radial-gradient(circle at 20% 10%,  rgba(30,136,229,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 90%,  rgba(0,230,118,0.04)  0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(255,214,0,0.02)  0%, transparent 70%),
+    radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: auto, auto, auto, 28px 28px;
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  transition: color var(--t-fast);
+}
+a:hover { color: var(--accent-yellow); }
+
+
+/* ═══════════════════════════════════════════════════════════
+   3. SCROLLBAR
+   ═══════════════════════════════════════════════════════════ */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+
+/* ═══════════════════════════════════════════════════════════
+   4. LAYOUT GENERALE
+   ═══════════════════════════════════════════════════════════ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Pagine standard (home, profilo, crea post) */
+.page {
+  max-width: 660px;
+  margin: 1.8rem auto;
+  padding: 0 1rem;
+  animation: fadeInUp 0.35s ease both;
+}
+
+/* Animazione entrata */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   5. CARD
+   ═══════════════════════════════════════════════════════════ */
+.card {
+  background: var(--bg-elevated);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  margin-bottom: 1.1rem;
+  transition: box-shadow var(--t-normal), transform var(--t-normal);
+}
+/* Solo le card non-post alzano leggermente al hover */
+.card:not(.post-card):hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  padding: 0.75rem 1.2rem;
+  background: rgba(0,0,0,0.25);
+  border-bottom: 1px solid var(--border-light);
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+.card-body  { padding: 1.1rem 1.2rem; }
+.card-footer {
+  padding: 0.7rem 1.2rem;
+  border-top: 1px solid var(--border-light);
+  background: rgba(0,0,0,0.15);
+}
+
+/* Bordi accento */
+.card-blue   { border-left: 3px solid var(--accent-blue); }
+.card-red    { border-left: 3px solid var(--accent-red); }
+.card-green  { border-left: 3px solid var(--accent-green); }
+.card-yellow { border-left: 3px solid var(--accent-yellow); }
+
+/* Card "crea post" */
+.new-post-card               { border-top: 3px solid var(--accent-yellow); border-left: none; }
+.new-post-card .card-header  { color: var(--accent-yellow); background: rgba(255,214,0,0.05); }
+
+
+/* ═══════════════════════════════════════════════════════════
+   6. POST CARD — home feed
+   Qui la distinzione visiva tra username, data/ora e testo
+   ═══════════════════════════════════════════════════════════ */
+.post-card {
+  border-left: 3px solid var(--accent-blue);
+  border-radius: var(--r-lg);
+  /* Lieve gradiente sulla card per distinguerla dallo sfondo */
+  background: linear-gradient(160deg, #1c1c1c 0%, #161616 100%);
+  transition: box-shadow var(--t-normal), border-color var(--t-normal);
+}
+.post-card:hover {
+  box-shadow: 0 4px 20px rgba(30,136,229,0.12);
+  border-left-color: var(--accent-blue);
+}
+
+/* ─── Riga header del post (avatar + nome + data) ─── */
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.85rem 1.2rem 0;
+}
+
+/* Username — grande, giallo brillante, molto leggibile */
+.post-username {
+  font-size:   0.95rem;
+  font-weight: 800;
+  color:       var(--accent-yellow);
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: color var(--t-fast);
+}
+.post-username:hover { color: var(--accent-yellow-d); }
+
+/* Separatore · tra username e data */
+.post-separator {
+  color: var(--border-medium);
+  font-size: 0.8rem;
+  margin: 0 0.15rem;
+}
+
+/* Data e ora — piccola, grigia, corsivo */
+.post-meta {
+  font-size:   0.75rem;
+  color:       var(--text-muted);
+  font-style:  italic;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Testo del post — ben spaziato dal resto */
+.post-text {
+  padding:     0.65rem 1.2rem 0.5rem;
+  font-size:   0.95rem;
+  line-height: 1.65;
+  color:       var(--text-primary);
+  word-break:  break-word;
+}
+
+/* Immagine allegata */
+.post-img {
+  display:       block;
+  width:         100%;
+  max-height:    420px;
+  object-fit:    cover;
+  /* Nessun padding laterale — immagine a bordo pieno */
+  border-top:    1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  margin-top:    0.5rem;
+}
+
+/* ─── Barra azioni (like, commenta, elimina) ─── */
+.post-actions {
+  display:     flex;
+  align-items: center;
+  gap:         0.3rem;
+  padding:     0.55rem 1rem;
+  border-top:  1px solid var(--border-light);
+}
+
+.action-btn {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           0.3rem;
+  background:    transparent;
+  border:        1px solid transparent;
+  border-radius: var(--r-full);
+  color:         var(--text-secondary);
+  padding:       0.3rem 0.75rem;
+  font-size:     0.82rem;
+  font-weight:   500;
+  cursor:        pointer;
+  transition:    all var(--t-fast);
+  line-height:   1;
+}
+.action-btn:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--border-medium);
+  color: var(--text-primary);
+}
+
+/* Like attivato */
+.action-btn.liked {
+  color: var(--accent-red);
+  border-color: rgba(229,57,53,0.4);
+  background: rgba(229,57,53,0.07);
+}
+.action-btn.liked:hover {
+  background: rgba(229,57,53,0.14);
+}
+
+/* Animazione cuore al like */
+.like-btn {
+  transition: all 0.2s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.like-btn.liked { animation: heartPop 0.28s ease; }
+@keyframes heartPop {
+  0%   { transform: scale(1);    }
+  45%  { transform: scale(1.35); }
+  100% { transform: scale(1);    }
+}
+
+/* Commenta — diventa verde quando aperto */
+.action-btn.comment-open {
+  color: var(--accent-green);
+  border-color: rgba(0,230,118,0.4);
+  background: rgba(0,230,118,0.06);
+}
+
+/* Elimina — spinto a destra, colorazione pericolo */
+.action-btn.delete-btn {
+  margin-left: auto;
+  color: #6a3030;
+  border-color: transparent;
+}
+.action-btn.delete-btn:hover {
+  color: var(--accent-red);
+  border-color: rgba(229,57,53,0.35);
+  background: rgba(229,57,53,0.07);
+}
+
+/* ─── Sezione commenti ─── */
+.comments-section {
+  display:    none;
+  padding:    0.85rem 1.2rem 0.9rem;
+  border-top: 1px solid var(--border-light);
+  background: rgba(0,0,0,0.2);
+  animation:  slideDown 0.18s ease both;
+}
+.comments-section.open { display: block; }
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.comment-item {
+  display:       flex;
+  align-items:   flex-start;
+  gap:           0.6rem;
+  margin-bottom: 0.65rem;
+  font-size:     0.86rem;
+}
+.comment-item-avatar,
+.comment-avatar {
+  width:           30px;
+  height:          30px;
+  border-radius:   50%;
+  background:      var(--accent-blue);
+  color:           #fff;
+  font-size:       0.72rem;
+  font-weight:     700;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  flex-shrink:     0;
+  overflow:        hidden;
+}
+
+/* Testo commento in una bolla */
+.comment-text {
+  background:    var(--bg-input);
+  border:        1px solid var(--border-light);
+  border-radius: 0 var(--r-md) var(--r-md) var(--r-md);
+  padding:       0.4rem 0.8rem;
+  flex:          1;
+  line-height:   1.45;
+}
+.comment-author {
+  font-weight: 700;
+  color:       var(--accent-blue);
+  font-size:   0.8rem;
+  margin-right: 0.3rem;
+}
+.comment-time {
+  font-size:  0.7rem;
+  color:      var(--text-muted);
+  font-style: italic;
+}
+
+/* Form invio commento */
+.comment-form {
+  display:    flex;
+  gap:        0.5rem;
+  margin-top: 0.7rem;
+}
+.comment-form .comment-input,
+.comment-input {
+  flex:          1;
+  background:    var(--bg-input);
+  border:        1px solid var(--border-light);
+  border-radius: var(--r-full);
+  color:         var(--text-primary);
+  padding:       0.4rem 1rem;
+  font-size:     0.86rem;
+}
+.comment-form .comment-input:focus,
+.comment-input:focus {
+  border-color: var(--accent-green);
+  outline:      none;
+  box-shadow:   0 0 0 2px rgba(0,230,118,0.2);
+}
+
+/* Feed vuoto */
+.empty-feed      { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+.empty-feed-icon { font-size: 2.8rem; margin-bottom: 0.6rem; opacity: .6; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   7. BOTTONI
+   ═══════════════════════════════════════════════════════════ */
+.btn {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             0.45rem;
+  padding:         0.5rem 1.25rem;
+  border-radius:   var(--r-full);
+  font-weight:     600;
+  font-size:       0.86rem;
+  border:          none;
+  cursor:          pointer;
+  transition:      all var(--t-fast);
+  background:      var(--bg-hover);
+  color:           var(--text-primary);
+  text-decoration: none;
+  line-height:     1.2;
+  white-space:     nowrap;
+}
+.btn:hover   { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.btn:active  { transform: scale(0.97) translateY(0); filter: brightness(0.95); }
+
+.btn-blue, .btn-primary { background: var(--accent-blue);   color: #fff; }
+.btn-red                { background: var(--accent-red);    color: #fff; }
+.btn-green              { background: var(--accent-green);  color: #000; }
+.btn-yellow             { background: var(--accent-yellow); color: #000; }
+.btn-outline {
+  background:   transparent;
+  border:       1px solid var(--border-medium);
+  color:        var(--text-secondary);
+}
+.btn-outline:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+.btn-sm   { padding: 0.3rem 0.85rem; font-size: 0.78rem; }
+.btn-full { width: 100%; }
+
+/* Bottone "grigio scuro" — es. Annulla */
+.btn-ghost {
+  background: #2a2a2a;
+  color: var(--text-secondary);
+}
+.btn-ghost:hover { background: #333; color: var(--text-primary); }
+
+/* Alert errore */
+.alert-error {
+  background:    rgba(229,57,53,0.1);
+  border:        1px solid rgba(229,57,53,0.4);
+  border-radius: var(--r-sm);
+  color:         #ff8a80;
+  padding:       0.65rem 0.9rem;
+  font-size:     0.88rem;
+  margin-bottom: 1rem;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   8. FORM E INPUT
+   ═══════════════════════════════════════════════════════════ */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="file"],
+textarea,
+select {
+  width:         100%;
+  background:    var(--bg-input);
+  border:        1px solid var(--border-light);
+  border-radius: var(--r-md);
+  color:         var(--text-primary);
+  padding:       0.6rem 1rem;
+  font-size:     0.9rem;
+  font-family:   inherit;
+  line-height:   1.4;
+  transition:    border-color var(--t-fast), box-shadow var(--t-fast);
+}
+input:focus,
+textarea:focus {
+  outline:      none;
+  border-color: var(--accent-blue);
+  box-shadow:   var(--shadow-focus);
+}
+input::placeholder,
+textarea::placeholder { color: var(--text-muted); }
+
+label {
+  display:       block;
+  font-size:     0.8rem;
+  font-weight:   500;
+  color:         var(--text-secondary);
+  margin-bottom: 0.35rem;
+  margin-top:    0.85rem;
+}
+label:first-of-type { margin-top: 0; }
+
+textarea {
+  resize:     vertical;
+  min-height: 90px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   9. NAVBAR
+   ═══════════════════════════════════════════════════════════ */
+.navbar {
+  position:         sticky;
+  top:              0;
+  z-index:          1000;
+  background:       rgba(10,10,10,0.88);
+  backdrop-filter:  blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom:    1px solid var(--border-light);
+  padding:          0.55rem 1.4rem;
+  display:          flex;
+  align-items:      center;
+  justify-content:  space-between;
+  gap:              0.8rem;
+  flex-wrap:        wrap;
+}
+
+/* Brand con gradiente giallo→verde */
+.navbar-brand {
+  font-size:   1.2rem;
+  font-weight: 800;
+  background:  linear-gradient(120deg, var(--accent-yellow) 0%, var(--accent-green) 100%);
+  -webkit-background-clip: text;
+  background-clip:         text;
+  color:                   transparent;
+  text-decoration:         none;
+  letter-spacing:          -0.02em;
+  white-space:             nowrap;
+}
+.navbar-brand:hover { opacity: 0.85; }
+
+.navbar-links {
+  display:     flex;
+  align-items: center;
+  gap:         0.35rem;
+  flex-wrap:   wrap;
+}
+
+.nav-link {
+  padding:         0.35rem 0.8rem;
+  border-radius:   var(--r-full);
+  font-size:       0.84rem;
+  font-weight:     500;
+  color:           var(--text-primary);
+  border:          1px solid transparent;
+  transition:      all var(--t-fast);
+  cursor:          pointer;
+  text-decoration: none;
+  white-space:     nowrap;
+}
+a.nav-link:hover,
+.nav-link:hover {
+  background:      rgba(255,255,255,0.07);
+  text-decoration: none;
+}
+
+.nav-green  { border-color: var(--accent-green);  color: var(--accent-green);  }
+.nav-yellow { border-color: var(--accent-yellow); color: var(--accent-yellow); }
+.nav-red    { border-color: var(--accent-red);    color: var(--accent-red);    }
+
+.nav-green:hover  { background: var(--accent-green);  color: #000; }
+.nav-yellow:hover { background: var(--accent-yellow); color: #000; }
+.nav-red:hover    { background: var(--accent-red);    color: #fff; }
+
+.nav-disabled {
+  color:        #444;
+  border-color: #2a2a2a;
+  cursor:       not-allowed;
+  pointer-events: none;
+}
+
+/* Badge username loggato */
+.nav-user {
+  background:    var(--accent-blue);
+  padding:       0.28rem 0.85rem;
+  border-radius: var(--r-full);
+  font-size:     0.8rem;
+  font-weight:   600;
+  color:         #fff;
+  margin-left:   0.4rem;
+  white-space:   nowrap;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   10. RICERCA DROPDOWN (navbar)
+   ═══════════════════════════════════════════════════════════ */
+.search-wrap {
+  position:    relative;
+  flex-shrink: 0;
+}
+
+.search-input {
+  width:         185px;
+  padding:       0.32rem 0.9rem;
+  border-radius: var(--r-full);
+  font-size:     0.83rem;
+  background:    rgba(255,255,255,0.06);
+  border:        1px solid var(--border-light);
+  color:         var(--text-primary);
+  transition:    width var(--t-normal), border-color var(--t-fast), background var(--t-fast);
+}
+.search-input:focus {
+  width:        240px;
+  background:   var(--bg-input);
+  border-color: var(--accent-blue);
+  outline:      none;
+  box-shadow:   var(--shadow-focus);
+}
+.search-input::placeholder { color: var(--text-muted); }
+
+.search-results {
+  position:      absolute;
+  top:           calc(100% + 6px);
+  left:          0;
+  right:         0;
+  background:    var(--bg-elevated);
+  border:        1px solid var(--border-light);
+  border-radius: var(--r-md);
+  z-index:       500;
+  box-shadow:    var(--shadow-lg);
+  overflow:      hidden;
+  animation:     fadeInDown 0.15s ease both;
+  min-width:     220px;
+}
+
+.search-item {
+  display:         flex;
+  align-items:     center;
+  gap:             0.7rem;
+  padding:         0.6rem 0.9rem;
+  cursor:          pointer;
+  border-bottom:   1px solid var(--border-light);
+  transition:      background var(--t-fast);
+  text-decoration: none;
+  color:           var(--text-primary);
+}
+.search-item:last-child { border-bottom: none; }
+.search-item:hover { background: var(--bg-hover); }
+
+.search-item-avatar {
+  width:           36px;
+  height:          36px;
+  border-radius:   50%;
+  background:      var(--accent-blue);
+  color:           #fff;
+  font-size:       0.85rem;
+  font-weight:     700;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  overflow:        hidden;
+  flex-shrink:     0;
+}
+.search-item-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.search-item-username   { font-weight: 700; font-size: 0.88rem; color: var(--accent-yellow); }
+.search-item-name       { font-size: 0.75rem; color: var(--text-muted); }
+.search-no-results      { padding: 0.7rem 1rem; color: var(--text-muted); font-size: 0.85rem; text-align: center; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   11. CHAT GLOBALE (/chat)
+   Fix allineamento messaggi + layout centrato
+   ═══════════════════════════════════════════════════════════ */
+
+/*
+  Il body della pagina chat ha layout colonna a piena altezza.
+  Impostiamo qui invece di usare inline style nel EJS.
+*/
+body.chat-page {
+  display:        flex;
+  flex-direction: column;
+  height:         100vh;
+  overflow:       hidden;
+}
+
+/* Wrapper centrato della chat con padding dai bordi */
+.chat-page-wrap {
+  flex:      1;
+  display:   flex;
+  flex-direction: column;
+  max-width: 820px;        /* larghezza massima della chat */
+  width:     100%;
+  margin:    0 auto;
+  padding:   0.8rem 1rem 0;
+  overflow:  hidden;
+  min-height: 0;           /* fondamentale per il flex dentro flex */
+}
+
+/* Indicatore stato connessione */
+.conn-status {
+  display:       flex;
+  align-items:   center;
+  gap:           0.5rem;
+  font-size:     0.78rem;
+  padding:       0.35rem 0.9rem;
+  border-radius: var(--r-full);
+  background:    rgba(0,200,83,0.1);
+  border:        1px solid rgba(0,230,118,0.25);
+  color:         var(--accent-green);
+  margin-bottom: 0.5rem;
+  align-self:    flex-start;
+  transition:    all var(--t-normal);
+}
+.conn-status.disconnesso {
+  background: rgba(229,57,53,0.1);
+  border-color: rgba(229,57,53,0.25);
+  color: var(--accent-red);
+}
+
+/* Titolo chat globale */
+.chat-title {
+  font-weight:   700;
+  font-size:     0.92rem;
+  color:         var(--accent-green);
+  padding:       0.5rem 0 0.7rem;
+  display:       flex;
+  align-items:   center;
+  gap:           0.4rem;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink:   0;
+}
+
+/* Contenitore messaggi + input — bordo e sfondo */
+.chat-box {
+  flex:          1;
+  display:       flex;
+  flex-direction: column;
+  background:    var(--bg-surface);
+  border:        1px solid var(--border-light);
+  border-radius: var(--r-lg);
+  overflow:      hidden;
+  min-height:    0;
+  box-shadow:    var(--shadow-md);
+}
+
+/* ─── Area messaggi scrollabile ─── */
+.messages {
+  flex:           1;
+  overflow-y:     auto;
+  padding:        1rem 1.2rem;
+  display:        flex;
+  flex-direction: column;
+  gap:            0.6rem;
+  min-height:     0;
+}
+
+/* ─── Riga singolo messaggio ─── */
+/*  chat.ejs usa .msg-row + .mine / .other  */
+.msg-row {
+  display:        flex;
+  flex-direction: column;
+  max-width:      68%;
+  animation:      msgIn 0.18s ease both;
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Messaggio PROPRIO — destra */
+.msg-row.mine {
+  align-self:  flex-end;
+  align-items: flex-end;
+}
+/* Messaggio ALTRUI — sinistra */
+.msg-row.other {
+  align-self:  flex-start;
+  align-items: flex-start;
+}
+
+/* Username sopra alla bolla (solo messaggi altrui) */
+.msg-username {
+  font-size:     0.75rem;
+  font-weight:   700;
+  color:         var(--accent-blue);
+  margin-bottom: 0.18rem;
+  padding-left:  0.2rem;
+}
+
+/* Bolla del messaggio */
+.bubble {
+  padding:       0.55rem 1rem;
+  border-radius: 18px;
+  font-size:     0.9rem;
+  line-height:   1.45;
+  word-break:    break-word;
+  max-width:     100%;
+}
+.msg-row.mine  .bubble {
+  background:                var(--accent-green);
+  color:                     #000;
+  border-bottom-right-radius: 4px;
+}
+.msg-row.other .bubble {
+  background:               var(--bg-elevated);
+  border:                   1px solid var(--border-light);
+  color:                    var(--text-primary);
+  border-bottom-left-radius: 4px;
+}
+
+/* Timestamp sotto la bolla */
+.msg-time {
+  font-size:   0.7rem;
+  color:       var(--text-muted);
+  font-style:  italic;
+  margin-top:  0.18rem;
+  padding:     0 0.25rem;
+}
+
+/* ─── Barra invio messaggio globale ─── */
+.input-bar {
+  display:      flex;
+  gap:          0.6rem;
+  padding:      0.75rem 1rem;
+  background:   var(--bg-elevated);
+  border-top:   1px solid var(--border-light);
+  flex-shrink:  0;
+}
+.input-bar input {
+  flex:          1;
+  border-radius: var(--r-full);
+  padding:       0.5rem 1rem;
+  font-size:     0.9rem;
+}
+.input-bar input:disabled { opacity: 0.4; cursor: not-allowed; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   12. CHAT PRIVATA (/private-chat)
+   Usa classi: .chat-container, .conversations-sidebar,
+               .messages-area, .conv-item, .message-bubble, ecc.
+   ═══════════════════════════════════════════════════════════ */
+.chat-container {
+  display:    flex;
+  height:     calc(100vh - 58px); /* 58px = altezza navbar */
+  background: var(--bg-body);
+}
+
+/* Sidebar lista conversazioni */
+.conversations-sidebar {
+  width:         300px;
+  flex-shrink:   0;
+  background:    var(--bg-surface);
+  border-right:  1px solid var(--border-light);
+  display:       flex;
+  flex-direction: column;
+  overflow:      hidden;
+}
+
+.sidebar-header {
+  padding:       1rem 1rem 0.6rem;
+  font-weight:   700;
+  font-size:     0.95rem;
+  color:         var(--accent-green);
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink:   0;
+}
+
+/* Lista conversazioni scrollabile */
+.conv-list { flex: 1; overflow-y: auto; }
+
+/* Singola conversazione */
+.conv-item {
+  display:        flex;
+  align-items:    center;
+  gap:            0.8rem;
+  padding:        0.75rem 1rem;
+  cursor:         pointer;
+  border-bottom:  1px solid rgba(255,255,255,0.04);
+  transition:     background var(--t-fast);
+}
+.conv-item:hover   { background: var(--bg-hover); }
+.conv-item.active  {
+  background:   rgba(0,230,118,0.08);
+  border-left:  3px solid var(--accent-green);
+}
+
+.conv-avatar {
+  width:           42px;
+  height:          42px;
+  border-radius:   50%;
+  background:      var(--accent-blue);
+  color:           #fff;
+  font-size:       1rem;
+  font-weight:     700;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  overflow:        hidden;
+  flex-shrink:     0;
+}
+.conv-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.conv-info        { flex: 1; min-width: 0; }
+.conv-name        { font-weight: 600; font-size: 0.9rem; color: var(--accent-yellow); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.conv-last        { font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Area messaggi destra */
+.messages-area {
+  flex:           1;
+  display:        flex;
+  flex-direction: column;
+  background:     var(--bg-body);
+  overflow:       hidden;
+  min-width:      0;
+}
+
+/* Header area messaggi (nome utente selezionato) */
+.messages-header {
+  padding:       0.8rem 1.2rem;
+  background:    var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  font-weight:   700;
+  font-size:     0.95rem;
+  color:         var(--accent-yellow);
+  flex-shrink:   0;
+  min-height:    52px;
+  display:       flex;
+  align-items:   center;
+}
+
+/* Lista messaggi scrollabile */
+.messages-list {
+  flex:           1;
+  overflow-y:     auto;
+  padding:        1rem 1.2rem;
+  display:        flex;
+  flex-direction: column;
+  gap:            0.7rem;
+  min-height:     0;
+}
+
+/* Riga singolo messaggio privato */
+/*  privateChat.ejs usa .message-row + .mine / .other  */
+.message-row {
+  display:        flex;
+  flex-direction: column;
+  max-width:      70%;
+  animation:      msgIn 0.18s ease both;
+}
+.message-row.mine  { align-self: flex-end;  align-items: flex-end;  }
+.message-row.other { align-self: flex-start; align-items: flex-start; }
+
+/* Bolla messaggio privato */
+.message-bubble {
+  padding:       0.55rem 1rem;
+  border-radius: 18px;
+  font-size:     0.9rem;
+  line-height:   1.45;
+  word-break:    break-word;
+}
+.message-row.mine  .message-bubble {
+  background:                var(--accent-green);
+  color:                     #000;
+  border-bottom-right-radius: 4px;
+}
+.message-row.other .message-bubble {
+  background:               var(--bg-elevated);
+  border:                   1px solid var(--border-light);
+  color:                    var(--text-primary);
+  border-bottom-left-radius: 4px;
+}
+
+.message-time {
+  font-size:  0.7rem;
+  color:      var(--text-muted);
+  font-style: italic;
+  margin-top: 0.18rem;
+  padding:    0 0.25rem;
+}
+
+/* Area input privata */
+.input-area {
+  display:      flex;
+  gap:          0.6rem;
+  padding:      0.75rem 1rem;
+  background:   var(--bg-elevated);
+  border-top:   1px solid var(--border-light);
+  flex-shrink:  0;
+}
+.input-area input {
+  flex:          1;
+  border-radius: var(--r-full);
+  padding:       0.5rem 1rem;
+  font-size:     0.9rem;
+}
+.input-area input:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Stato vuoto — nessuna conversazione selezionata */
+.no-chat-selected {
+  flex:            1;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  flex-direction:  column;
+  gap:             0.8rem;
+  color:           var(--text-muted);
+  font-size:       0.95rem;
+  text-align:      center;
+  padding:         2rem;
+}
+.no-chat-selected-icon { font-size: 3rem; opacity: 0.35; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   13. PROFILO (/profile e /profile/:username)
+   ═══════════════════════════════════════════════════════════ */
+.profile-header {
+  display:     flex;
+  gap:         1.6rem;
+  align-items: flex-start;
+  flex-wrap:   wrap;
+  margin-bottom: 1.5rem;
+}
+
+/* Avatar circolare */
+.avatar {
+  width:         100px;
+  height:        100px;
+  border-radius: 50%;
+  object-fit:    cover;
+  border:        3px solid var(--accent-yellow);
+  display:       block;
+  transition:    transform var(--t-normal), box-shadow var(--t-normal);
+}
+.avatar:hover {
+  transform:  scale(1.04);
+  box-shadow: 0 0 0 4px rgba(255,214,0,0.25);
+}
+
+/* Placeholder con iniziale */
+.avatar-placeholder {
+  width:           100px;
+  height:          100px;
+  border-radius:   50%;
+  background:      linear-gradient(135deg, var(--accent-blue), #0d47a1);
+  color:           #fff;
+  font-size:       2.4rem;
+  font-weight:     800;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  border:          3px solid var(--accent-yellow);
+  flex-shrink:     0;
+}
+
+/* Info testuali */
+.profile-info      { flex: 1; min-width: 160px; }
+.profile-username  { font-size: 1.55rem; font-weight: 800; color: var(--accent-yellow); margin-bottom: 0.15rem; }
+.profile-fullname  { font-weight: 600; color: var(--text-primary); margin-bottom: 0.35rem; }
+.profile-bio       { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.55; }
+
+/* Statistiche numeriche */
+.profile-stats {
+  display:    flex;
+  gap:        1.5rem;
+  margin-top: 0.9rem;
+}
+.stat          { text-align: center; }
+.stat-num      { font-size: 1.35rem; font-weight: 800; color: var(--text-primary); display: block; }
+.stat-label    { font-size: 0.72rem; color: var(--text-muted); }
+
+/* Form modifica profilo — collassabile */
+.edit-section             { display: none; margin-top: 1.2rem; border-top: 1px solid var(--border-light); padding-top: 1.2rem; }
+.edit-section.open        { display: block; animation: fadeIn 0.2s ease both; }
+.edit-section h3          { color: var(--accent-yellow); margin-bottom: 1rem; font-size: 1rem; }
+.btn-row                  { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+
+/* Lista post sul profilo */
+.posts-title {
+  font-size:      0.95rem;
+  font-weight:    700;
+  color:          var(--accent-yellow);
+  border-bottom:  1px solid var(--border-light);
+  padding-bottom: 0.55rem;
+  margin-bottom:  1rem;
+}
+
+/* Miniatura immagine post nel profilo */
+.post-img-profile {
+  max-width:     100%;
+  max-height:    340px;
+  border-radius: var(--r-sm);
+  margin-top:    0.5rem;
+  object-fit:    cover;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   14. CREA POST (/create-post)
+   ═══════════════════════════════════════════════════════════ */
+/* La pagina usa .page e .card standard */
+.post-card-create              { border-top: 3px solid var(--accent-red); }
+.post-card-create .card-header { color: var(--accent-red); background: rgba(229,57,53,0.05); }
+
+/* Anteprima immagine selezionata */
+#preview {
+  display:       none;
+  width:         100%;
+  max-height:    280px;
+  object-fit:    cover;
+  border-radius: var(--r-md);
+  margin-top:    0.75rem;
+  border:        1px solid var(--border-light);
+  animation:     fadeIn 0.2s ease both;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   15. LOGIN / REGISTER
+   ═══════════════════════════════════════════════════════════ */
+.auth-page {
+  min-height:      100vh;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         2rem 1rem;
+  /* Sfondo con gradiente radiale per le pagine di autenticazione */
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(30,136,229,0.1) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 80%, rgba(0,230,118,0.06) 0%, transparent 55%),
+    var(--bg-body);
+}
+.auth-box {
+  width:         min(92vw, 400px);
+  background:    var(--bg-elevated);
+  border:        1px solid var(--border-light);
+  border-radius: var(--r-xl);
+  padding:       2.2rem 2rem;
+  box-shadow:    var(--shadow-lg);
+  animation:     fadeInUp 0.4s ease both;
+}
+.auth-title {
+  text-align:    center;
+  font-size:     1.7rem;
+  font-weight:   900;
+  background:    linear-gradient(120deg, var(--accent-yellow), var(--accent-green));
+  -webkit-background-clip: text;
+  background-clip:         text;
+  color:                   transparent;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.02em;
+}
+.auth-subtitle { text-align: center; color: var(--text-muted); font-size: 0.87rem; margin-bottom: 1.8rem; }
+.auth-footer   { text-align: center; margin-top: 1.3rem; font-size: 0.87rem; color: var(--text-muted); }
+.auth-footer a { color: var(--accent-yellow); font-weight: 600; }
+.auth-footer a:hover { color: var(--accent-yellow-d); }
+.form-group    { margin-bottom: 1rem; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   16. UTILITY
+   ═══════════════════════════════════════════════════════════ */
+.text-muted    { color: var(--text-muted)   !important; }
+.text-center   { text-align: center; }
+.text-right    { text-align: right; }
+.d-flex        { display: flex; }
+.align-center  { align-items: center; }
+.gap-1         { gap: 0.5rem; }
+.gap-2         { gap: 1rem; }
+.mt-1          { margin-top: 0.5rem  !important; }
+.mt-2          { margin-top: 1rem    !important; }
+.mb-1          { margin-bottom: 0.5rem !important; }
+.mb-2          { margin-bottom: 1rem   !important; }
+.ml-auto       { margin-left: auto; }
+.w-100         { width: 100%; }
+
+/* Pulsazione — es. pallino stato online */
+.pulse {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 1; }
+}
+
+/* Sfondo semi-trasparente per modal/overlay */
+.overlay {
+  position:   fixed;
+  inset:      0;
+  background: rgba(0,0,0,0.65);
+  z-index:    900;
+  backdrop-filter: blur(3px);
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   17. RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items:    stretch;
+    padding:        0.5rem 0.8rem;
+  }
+  .navbar-links {
+    justify-content: center;
+    gap:             0.25rem;
+  }
+  .nav-link  { font-size: 0.78rem; padding: 0.28rem 0.6rem; }
+  .nav-user  { display: none; } /* nasconde il badge username su mobile */
+
+  .search-input, .search-input:focus { width: 100%; }
+
+  .page {
+    margin:  1rem auto;
+    padding: 0 0.6rem;
+  }
+
+  /* Chat privata: sidebar collassa in basso su mobile */
+  .chat-container { flex-direction: column; height: auto; }
+  .conversations-sidebar { width: 100%; max-height: 180px; border-right: none; border-bottom: 1px solid var(--border-light); }
+  .messages-area  { height: calc(100vh - 330px); }
+
+  /* Messaggi un po' più larghi */
+  .msg-row, .message-row { max-width: 88%; }
+
+  /* Profilo: colonna su mobile */
+  .profile-header { flex-direction: column; align-items: center; text-align: center; }
+  .profile-stats  { justify-content: center; }
+
+  /* Card: bordo arrotondamento ridotto */
+  .card, .chat-box { border-radius: var(--r-md); }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 14px; }
+  .auth-box { padding: 1.5rem 1.2rem; }
+  .post-card .card-body { padding: 0.8rem; }
+  .btn { padding: 0.45rem 1rem; font-size: 0.82rem; }
+}
