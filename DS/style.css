@@ -1,0 +1,298 @@
+/* ============================================================
+   DS - Stile moderno per documentazione e routing
+   Dark theme, glassmorphism, animazioni fluide
+   ============================================================ */
+
+:root {
+  --bg: #0a0c12;
+  --surface: #12161f;
+  --card-bg: rgba(22, 28, 38, 0.85);
+  --border: #2a2f3a;
+  --text: #edf2f7;
+  --text-dim: #9aa8b9;
+  --primary: #2b6ef0;
+  --primary-dark: #1a4fbd;
+  --accent-green: #0ecc8a;
+  --accent-yellow: #f5b042;
+  --accent-red: #f23b3b;
+  --shadow: 0 8px 20px rgba(0,0,0,0.4);
+  --glass: backdrop-filter blur(12px);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: radial-gradient(circle at 10% 20%, #0a0c12, #03060b);
+  color: var(--text);
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.5;
+  scroll-behavior: smooth;
+}
+
+/* navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  background: rgba(10, 12, 18, 0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  z-index: 100;
+}
+.nav-brand {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent-yellow), var(--primary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.nav-links {
+  display: flex;
+  gap: 1.2rem;
+}
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.2s;
+  padding: 0.3rem 0;
+  border-bottom: 2px solid transparent;
+}
+.nav-links a:hover, .nav-links a.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* container principale */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* hero home */
+.hero {
+  text-align: center;
+  margin: 2rem 0 3rem;
+}
+.hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(125deg, #fff, var(--primary));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.hero-sub {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  max-width: 650px;
+  margin: 1rem auto;
+}
+.hero-badge {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+.hero-badge span {
+  background: rgba(43, 110, 240, 0.2);
+  border: 1px solid rgba(43,110,240,0.4);
+  padding: 0.3rem 0.9rem;
+  border-radius: 40px;
+  font-size: 0.85rem;
+}
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* bottoni */
+.btn {
+  padding: 0.6rem 1.5rem;
+  border-radius: 40px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s;
+  display: inline-block;
+  background: #2a2f3a;
+  color: white;
+}
+.btn-primary {
+  background: linear-gradient(105deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 4px 12px rgba(43,110,240,0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+}
+.btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* features */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 3rem 0;
+}
+.feature-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 1.5rem;
+  transition: 0.2s;
+}
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+}
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+/* documentazione */
+.page-title {
+  font-size: 2rem;
+  margin-bottom: 0.3rem;
+  background: linear-gradient(135deg, #fff, var(--primary));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.page-sub {
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+  border-left: 3px solid var(--primary);
+  padding-left: 1rem;
+}
+
+.doc-section {
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  border-radius: 24px;
+  padding: 1.5rem;
+  margin-bottom: 1.8rem;
+  border: 1px solid var(--border);
+}
+.doc-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.8rem;
+  color: var(--accent-yellow);
+}
+.doc-section h3 {
+  margin: 1rem 0 0.5rem;
+  color: var(--primary);
+}
+.code-block {
+  background: #0a0e14;
+  border-radius: 16px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  border-left: 4px solid var(--primary);
+}
+.code-block pre {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #b9e0ff;
+}
+.route-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.route-table th, .route-table td {
+  border: 1px solid var(--border);
+  padding: 0.6rem;
+  text-align: left;
+}
+.route-table th {
+  background: #1a1f2a;
+}
+
+/* accordion per routing */
+.accordion-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+.accordion-header {
+  background: rgba(0,0,0,0.3);
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  transition: 0.2s;
+}
+.accordion-header:hover {
+  background: rgba(43,110,240,0.2);
+}
+.accordion-icon {
+  transition: transform 0.2s;
+}
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+  padding: 0 1.5rem;
+}
+.accordion-content.open {
+  max-height: 800px; /* sufficiente per contenuto */
+  padding: 1rem 1.5rem 1.5rem;
+}
+.routing-table {
+  background: #0a0e14;
+  border-radius: 12px;
+  padding: 0.8rem;
+  margin: 1rem 0;
+}
+.routing-table table {
+  width: 100%;
+}
+.routing-table td {
+  padding: 5px;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  margin-top: 2rem;
+}
+
+@media (max-width: 700px) {
+  .navbar {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .hero-title {
+    font-size: 2rem;
+  }
+  .doc-section {
+    padding: 1rem;
+  }
+}

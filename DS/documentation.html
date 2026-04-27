@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ErMike-SocialHub · Documentazione completa</title>
+<style>
+  /* RESET E IMPOSTAZIONI GENERALI */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: radial-gradient(circle at 10% 20%, #0a0c12, #03060b);
+    color: #edf2f7;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.5;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: rgba(18, 22, 31, 0.6);
+    backdrop-filter: blur(2px);
+    border-radius: 2rem;
+    padding: 2rem;
+    border: 1px solid #2a2f3a;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, #2b6ef0);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    margin-bottom: 0.5rem;
+  }
+
+  .sub {
+    color: #9aa8b9;
+    border-left: 3px solid #2b6ef0;
+    padding-left: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* sezioni */
+  .doc-section {
+    background: rgba(22, 28, 38, 0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 28px;
+    border: 1px solid #2a2f3a;
+    padding: 1.8rem;
+    margin-bottom: 2rem;
+    transition: 0.2s;
+  }
+  .doc-section:hover {
+    transform: translateY(-3px);
+    border-color: #2b6ef0;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    color: #f5b042;
+  }
+  h3 {
+    font-size: 1.2rem;
+    margin: 1.2rem 0 0.6rem;
+    color: #2b6ef0;
+  }
+
+  /* tabelle */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+  }
+  th, td {
+    border: 1px solid #2a2f3a;
+    padding: 0.6rem;
+    text-align: left;
+    background: rgba(0,0,0,0.3);
+  }
+  th {
+    background: #1a1f2a;
+    color: #0ecc8a;
+  }
+
+  /* blocchi di codice */
+  .code-block, pre {
+    background: #0a0e14;
+    border-radius: 16px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+    border-left: 4px solid #2b6ef0;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: #b9e0ff;
+    white-space: pre-wrap;
+  }
+
+  /* liste */
+  ul, ol {
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+  }
+  li {
+    margin: 0.3rem 0;
+  }
+
+  /* link */
+  a {
+    color: #2b6ef0;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* responsive */
+  @media (max-width: 700px) {
+    .container {
+      padding: 1rem;
+    }
+    .doc-section {
+      padding: 1rem;
+    }
+    h1 {
+      font-size: 1.6rem;
+    }
+  }
+</style>
+  
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Documentazione tecnica completa<br>ErMike-SocialHub</h1>
+    <p class="sub">Analisi approfondita del social network realizzato con Node.js, Express, WebSocket, JSON e Ollama.</p>
+
+    <!-- ================= 1. INTRODUZIONE E STACK ================= -->
+    <div class="doc-section">
+      <h2>📌 1. Panoramica e stack tecnologico</h2>
+      <p><strong>ErMike-SocialHub</strong> è una piattaforma social sviluppata come progetto scolastico. Consente registrazione, login, pubblicazione di post con testo e immagini, like, commenti, follow/unfollow, profili pubblici, chat globale in tempo reale (WebSocket), messaggistica privata 1:1 e un assistente AI (<code>@bot</code>) basato su Ollama in locale.</p>
+      <table class="stack-table">
+        <tr><th>Componente</th><th>Tecnologia</th></tr>
+        <tr><td>Runtime</td><td>Node.js (≥ v18)</td></tr>
+        <tr><td>Framework HTTP</td><td>Express 4.18</td></tr>
+        <tr><td>Template engine</td><td>EJS</td></tr>
+        <tr><td>WebSocket</td><td>ws (libreria npm)</td></tr>
+        <tr><td>Upload file</td><td>Multer</td></tr>
+        <tr><td>Sessioni</td><td>express-session</td></tr>
+        <tr><td>Persistenza</td><td>File JSON locali (cartella <code>data/</code>)</td></tr>
+        <tr><td>AI Bot</td><td>Ollama (modello <code>llama3.2:1b</code>)</td></tr>
+        <tr><td>Frontend</td><td>HTML5/CSS3 puro + JavaScript</td></tr>
+      </table>
+      <p>Il server ascolta sulla porta 3000 e gestisce contemporaneamente richieste HTTP e WebSocket.</p>
+    </div>
+
+    <!-- ================= 2. ARCHITETTURA ================= -->
+    <div class="doc-section">
+      <h2>🏗️ 2. Architettura del software</h2>
+      <p>L'applicazione segue un pattern MVC semplificato:</p>
+      <ul>
+        <li><strong>Model</strong> – file JSON in <code>data/</code></li>
+        <li><strong>View</strong> – template EJS in <code>views/</code></li>
+        <li><strong>Controller</strong> – route in <code>server.js</code></li>
+      </ul>
+      <p>Struttura delle cartelle (rilevante):</p>
+      <pre class="code-block">
+├── server.js
+├── views/
+│   ├── login.ejs, register.ejs, home.ejs, createPost.ejs
+│   ├── chat.ejs, privateChat.ejs, profile.ejs, profilePublic.ejs
+│   └── partials/ (navbar.ejs, styles.ejs)
+├── data/
+│   ├── users.json, posts.json, comments.json
+│   ├── chat.json, messages.json, follows.json
+├── uploads/ (immagini post e avatar profilo)
+├── public/ (file statici: CSS, immagini)
+└── package.json
+      </pre>
+      <p>HTTP e WebSocket condividono la stessa porta. Il modulo <code>ws</code> intercetta le richieste di upgrade e mantiene una <code>Map()</code> dei client connessi.</p>
+    </div>
+
+    <!-- ================= 3. MODELLI DATI ================= -->
+    <div class="doc-section">
+      <h2>🗄️ 3. Modelli dati (JSON)</h2>
+      <p>Ogni file JSON rappresenta una collezione. Di seguito i campi principali.</p>
+      
+      <h3>users.json</h3>
+      <pre class="code-block">{
+  "id": "18f3a2b4c",
+  "username": "mike",
+  "password": "plaintext",
+  "fullName": "Michele Piazzolla",
+  "bio": "Sviluppatore web",
+  "avatar": "/uploads/profiles/xxx.jpg",
+  "joinedAt": "2026-04-20T..."
+}</pre>
+
+      <h3>posts.json</h3>
+      <pre class="code-block">{
+  "id": 1745250000000,
+  "userId": "18f3a2b4c",
+  "username": "mike",
+  "text": "Ciao mondo!",
+  "image": "/uploads/xxx.jpg",
+  "likes": ["maria", "luca"],
+  "createdAt": "2026-04-20T..."
+}</pre>
+
+      <h3>comments.json</h3>
+      <pre class="code-block">{
+  "id": 1745250100000,
+  "postId": 1745250000000,
+  "username": "maria",
+  "text": "Bel post!",
+  "createdAt": "..."
+}</pre>
+
+      <h3>chat.json (globale)</h3>
+      <pre class="code-block">{
+  "id": 1745250200000,
+  "username": "mike",
+  "testo": "Messaggio globale",
+  "timestamp": "..."
+}</pre>
+
+      <h3>messages.json (privati 1:1)</h3>
+      <pre class="code-block">{
+  "id": 1745250300000,
+  "from": "mike",
+  "to": "maria",
+  "text": "Ciao privato",
+  "timestamp": "...",
+  "read": false
+}</pre>
+
+      <h3>follows.json</h3>
+      <pre class="code-block">{ "follower": "mike", "followed": "maria" }</pre>
+    </div>
+
+    <!-- ================= 4. ROUTE HTTP ================= -->
+    <div class="doc-section">
+      <h2>🌐 4. Route HTTP (API e pagine)</h2>
+      <p>Tutte le route tranne <code>/login</code> e <code>/register</code> sono protette dal middleware <code>requireLogin()</code> che controlla la sessione.</p>
+      <table class="route-table">
+        <thead><tr><th>Metodo</th><th>Endpoint</th><th>Descrizione</th></tr></thead>
+        <tbody>
+          <tr><td>GET</td><td>/home</td><td>Feed principale con tutti i post (ordinati dal più recente)</td></tr>
+          <tr><td>POST</td><td>/create-post</td><td>Crea un nuovo post (accetta <code>text</code> e <code>image</code> via Multer)</td></tr>
+          <tr><td>POST</td><td>/like/:postId</td><td>Toggle like, restituisce JSON con nuovo conteggio e stato liked</td></tr>
+          <tr><td>POST</td><td>/comment/:postId</td><td>Aggiunge un commento al post</td></tr>
+          <tr><td>GET</td><td>/comments/:postId</td><td>Restituisce la lista commenti di un post (ordinata cronologicamente)</td></tr>
+          <tr><td>DELETE</td><td>/post/:id</td><td>Elimina un post (solo l'autore, verifica server)</td></tr>
+          <tr><td>GET</td><td>/profile</td><td>Profilo personale con form di modifica (nome, bio, avatar)</td></tr>
+          <tr><td>POST</td><td>/profile/update</td><td>Aggiorna i dati del profilo (con upload avatar)</td></tr>
+          <tr><td>GET</td><td>/profile/:username</td><td>Profilo pubblico di un altro utente (safeUser, senza password)</td></tr>
+          <tr><td>POST</td><td>/follow/:username</td><td>Toggle follow/unfollow – salva su follows.json</td></tr>
+          <tr><td>GET</td><td>/search?q=...</td><td>Ricerca utenti per username/nome completo, massimo 6 risultati, esclude sé stesso</td></tr>
+          <tr><td>GET</td><td>/api/conversations</td><td>Elenco degli utenti con cui si è scambiato almeno un messaggio privato</td></tr>
+          <tr><td>GET</td><td>/api/messages/:withUser</td><td>Storico dei messaggi privati tra l'utente loggato e :withUser</td></tr>
+          <tr><td>GET</td><td>/chat</td><td>Pagina della chat globale (WebSocket)</td></tr>
+          <tr><td>GET</td><td>/private-chat</td><td>Pagina delle chat private 1:1 (sidebar + area messaggi)</td></tr>
+          <tr><td>GET</td><td>/login</td><td>Form di login</td></tr>
+          <tr><td>POST</td><td>/login</td><td>Verifica credenziali, avvia sessione</td></tr>
+          <tr><td>GET</td><td>/register</td><td>Form di registrazione</td></tr>
+          <tr><td>POST</td><td>/register</td><td>Crea nuovo utente, lo salva su users.json</td></tr>
+          <tr><td>GET</td><td>/logout</td><td>Distrugge sessione e reindirizza a /login</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ================= 5. WEBSOCKET ================= -->
+    <div class="doc-section">
+      <h2>🔌 5. WebSocket – protocollo e flussi</h2>
+      <p>Il server centralizza tutte le connessioni in una <code>Map(ws → username)</code>. I messaggi scambiati hanno un campo <code>tipo</code> numerico.</p>
+      <table class="route-table">
+        <thead><tr><th>tipo</th><th>Direzione</th><th>Descrizione</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>client → server</td><td>Autenticazione: il client invia il proprio username. Il server lo registra e risponde con lo storico globale (tipo 1).</td></tr>
+          <tr><td>1</td><td>server → client</td><td>Storico iniziale della chat globale (array di messaggi).</td></tr>
+          <tr><td>1</td><td>client → server</td><td>Nuovo messaggio globale. Il server lo salva su <code>chat.json</code> e lo diffonde a tutti (tipo 2).</td></tr>
+          <tr><td>2</td><td>server → client</td><td>Broadcast di un nuovo messaggio globale a tutti i client connessi.</td></tr>
+          <tr><td>10</td><td>client → server</td><td>Invio messaggio privato a un utente specifico (campi: <code>to</code>, <code>text</code>). Il server salva su <code>messages.json</code>, cerca il destinatario nella Map e glielo inoltra (tipo 10). Invia conferma anche al mittente.</td></tr>
+          <tr><td>10</td><td>server → client</td><td>Consegna di un messaggio privato (sia al destinatario che al mittente per conferma).</td></tr>
+          <tr><td>-1</td><td>server → client</td><td>Errore (es. username già connesso da un'altra scheda).</td></tr>
+        </tbody>
+      </table>
+      <p>La chat privata supporta la consegna offline: se il destinatario non è connesso, il messaggio viene comunque salvato e sarà visibile quando aprirà di nuovo la pagina delle chat private (grazie al caricamento dello storico via HTTP).</p>
+    </div>
+
+    <!-- ================= 6. FUNZIONALITÀ DETTAGLIATE ================= -->
+    <div class="doc-section">
+      <h2>⚙️ 6. Funzionalità implementate</h2>
+      
+      <h3>🔐 Autenticazione e sessioni</h3>
+      <p>Registrazione con username e password (memorizzate in chiaro – solo a scopo didattico). Login: verifica credenziali e crea una sessione server-side con <code>express-session</code>. Il middleware <code>requireLogin()</code> garantisce che tutte le route protette siano accessibili solo agli utenti autenticati.</p>
+      
+      <h3>📝 Post e feed</h3>
+      <p>Creazione post: testo obbligatorio o immagine (almeno uno dei due). Le immagini vengono caricate con Multer e salvate in <code>uploads/</code> con nome univoco. Il feed home mostra tutti i post ordinati per data decrescente. L'autore può eliminare i propri post (verifica server).</p>
+      
+      <h3>❤️ Like e commenti</h3>
+      <p>Like: toggle senza ricaricare la pagina tramite fetch POST a <code>/like/:postId</code>. Il server restituisce JSON con il nuovo conteggio e lo stato liked. Il client aggiorna l'interfaccia. Commenti: sezione nascosta, caricata dinamicamente via GET <code>/comments/:postId</code>. Il form invia il commento via POST e la lista viene ricaricata in AJAX.</p>
+      
+      <h3>👥 Follow / Unfollow e profili pubblici</h3>
+      <p>Ogni utente può seguire altri. La relazione è salvata in <code>follows.json</code>. Il profilo pubblico (es. <code>/profile/mike</code>) mostra avatar, bio, numero di post, follower, seguiti e presenta due bottoni: "Segui" (toggle) e "Messaggio" (collegamento alla chat privata). La password non viene mai inviata al client – viene costruito un oggetto <code>safeUser</code>.</p>
+      
+      <h3>🔍 Ricerca utenti (navbar)</h3>
+      <p>Campo di ricerca con debounce (300 ms). La chiamata GET <code>/search?q=...</code> restituisce al massimo 6 utenti (escludendo l'utente corrente). I risultati sono mostrati in un dropdown con avatar e nome completo. Cliccando si accede al profilo pubblico.</p>
+      
+      <h3>💬 Chat globale</h3>
+      <p>Pagina <code>/chat</code>. Connessione WebSocket autenticata, carica lo storico dei messaggi globali. I messaggi propri sono allineati a destra (bolla verde), quelli altrui a sinistra (grigio scuro). Per il bot AI (vedi sotto) le bolle hanno uno stile speciale (viola).</p>
+      
+      <h3>🤖 Chat privata 1:1</h3>
+      <p>Pagina <code>/private-chat</code> con due colonne: a sinistra la lista delle conversazioni (utenti con cui si è già scambiato almeno un messaggio), a destra l'area di chat. Lo storico viene caricato via HTTP. L'invio usa WebSocket tipo 10. Se il destinatario è online riceve il messaggio in tempo reale, altrimenti il messaggio viene salvato e verrà visualizzato al successivo accesso alla chat.</p>
+      
+      <h3>🤖 AI Bot (Ollama)</h3>
+      <p>Quando un utente scrive un messaggio nella <strong>chat globale</strong> che inizia con <code>@bot</code>, il server estrae la domanda, chiama il modello Ollama in locale (porta 11434) e invia la risposta con username <code>AI Bot</code>. Viene applicato un <strong>cooldown di 3 secondi</strong> per evitare sovraccarico. Il bot è completamente gratuito e privato, non richiede chiavi API.</p>
+      <pre class="code-block">// esempio di chiamata a Ollama
+const response = await fetch('http://localhost:11434/api/generate', {
+  method: 'POST',
+  body: JSON.stringify({
+    model: 'llama3.2:1b',
+    prompt: `...`,
+    stream: false
+  })
+});</pre>
+    </div>
+
+    <!-- ================= 7. SICUREZZA E ROBUSTEZZA ================= -->
+    <div class="doc-section">
+      <h2>🛡️ 7. Sicurezza e robustezza</h2>
+      <ul>
+        <li><strong>Protezione route:</strong> <code>requireLogin()</code> reindirizza a /login se la sessione non è presente.</li>
+        <li><strong>Controllo autore per eliminazione post:</strong> il server confronta l'username della sessione con <code>post.username</code>; se diverso restituisce 403.</li>
+        <li><strong>Self-follow bloccato:</strong> se <code>follower === followed</code> il server risponde con 400 Bad Request.</li>
+        <li><strong>Migrazione automatica:</strong> all'avvio il server aggiunge campi mancanti (<code>bio</code>, <code>fullName</code>, <code>avatar</code>, <code>likes[]</code>) agli utenti e post esistenti, garantendo la compatibilità con versioni precedenti.</li>
+        <li><strong>SafeUser nei profili pubblici:</strong> la password non è inclusa nell'oggetto passato alla view.</li>
+        <li><strong>Gestione errori WebSocket:</strong> ogni messaggio JSON è avvolto in un try/catch; errori di parsing non causano il crash del server.</li>
+        <li><strong>Creazione preventiva delle cartelle:</strong> <code>uploads/profiles/</code> viene creata all'avvio per evitare errori ENOENT durante l'upload dell'avatar.</li>
+      </ul>
+    </div>
+
+    <!-- ================= 8. TEST E LIMITAZIONI ================= -->
+    <div class="doc-section">
+      <h2>🧪 8. Test eseguiti e limitazioni note</h2>
+      <p><strong>Test manuali effettuati con successo:</strong></p>
+      <ul>
+        <li>Registrazione, login, logout</li>
+        <li>Creazione post con solo testo, solo immagine, entrambi – e post vuoto bloccato</li>
+        <li>Like e unlike su post propri e altrui – contatore aggiornato</li>
+        <li>Commenti: apertura sezione, invio, visualizzazione</li>
+        <li>Eliminazione post (solo autore) – rimozione dal DOM e dal JSON</li>
+        <li>Follow/unfollow – aggiornamento contatori e bottone</li>
+        <li>Profilo pubblico e modifica profilo personale</li>
+        <li>Ricerca utenti e navigazione al profilo</li>
+        <li>Chat globale su due browser – messaggi in tempo reale</li>
+        <li>Chat privata online/offline – consegna immediata o posticipo</li>
+        <li>AI Bot – risposta a @bot, cooldown, stile diverso</li>
+      </ul>
+      <p><strong>Limitazioni attuali:</strong></p>
+      <ul>
+        <li>Password salvate in chiaro (in produzione usare bcrypt).</li>
+        <li>Nessun limite alla dimensione dei file upload (Multer senza fileSize limit).</li>
+        <li>Lo storage JSON non è thread‑safe e non adatto a più processi Node.js (per demo va bene).</li>
+        <li>Il campo <code>read</code> nei messaggi privati è salvato ma non ancora utilizzato nell'interfaccia (manca l'indicatore di "non letto").</li>
+        <li>Il feed home non filtra per utenti seguiti (mostra tutti i post). La logica di filtro è predisposta ma non attivata.</li>
+      </ul>
+    </div>
+
+    <!-- ================= 9. AVVIO DEL PROGETTO ================= -->
+    <div class="doc-section">
+      <h2>▶️ 9. Avvio del progetto</h2>
+      <p>Requisiti: Node.js ≥ 18, npm, (opzionale) Ollama per il bot.</p>
+      <pre class="code-block">git clone &lt;repository&gt;
+cd ErMike-SocialHub
+npm install express@4.18.2 express-session ejs multer ws
+node server.js</pre>
+      <p>Il server sarà accessibile su <code>http://localhost:3000</code>.</p>
+      <p><strong>Per l'AI Bot:</strong> installare Ollama (<a href="https://ollama.com">ollama.com</a>), avviare il servizio e scaricare un modello:</p>
+      <pre class="code-block">ollama pull llama3.2:1b</pre>
+      <p>Assicurarsi che Ollama sia in esecuzione prima di chiamare <code>@bot</code>.</p>
+      <p><strong>Nota sulle versioni:</strong> Usare Express 4.x (non 5.x) per evitare incompatibilità con <code>path-to-regexp</code>.</p>
+    </div>
+
+    <!-- ================= 10. SVILUPPI FUTURI ================= -->
+    <div class="doc-section">
+      <h2>🚀 10. Possibili sviluppi futuri</h2>
+      <ul>
+        <li>Feed personalizzato: mostrare solo i post degli utenti seguiti (già predisposto nel codice, basta attivare il filtro).</li>
+        <li>Notifiche in tempo reale (like, commenti, nuovi messaggi) via WebSocket.</li>
+        <li>Password hashate con bcrypt.</li>
+        <li>Indicatore di "letto/non letto" per i messaggi privati.</li>
+        <li>Chat di gruppo.</li>
+        <li>Supporto per allegati diversi dalle immagini (PDF, video).</li>
+        <li>Integrazione con un database relazionale (SQLite, PostgreSQL).</li>
+      </ul>
+    </div>
+
+    <!-- ================= 11. RIFERIMENTI ================= -->
+    <div class="doc-section">
+      <h2>📖 11. Riferimenti e comandi utili</h2>
+      <ul>
+        <li><strong>Express 4</strong> – <a href="https://expressjs.com/en/4x/api.html">https://expressjs.com/</a></li>
+        <li><strong>WebSocket (ws)</strong> – <a href="https://github.com/websockets/ws">github.com/websockets/ws</a></li>
+        <li><strong>Multer</strong> – <a href="https://github.com/expressjs/multer">github.com/expressjs/multer</a></li>
+        <li><strong>EJS</strong> – <a href="https://ejs.co">ejs.co</a></li>
+        <li><strong>Ollama</strong> – <a href="https://ollama.com">ollama.com</a></li>
+      </ul>
+      <p>Per la gestione manuale dei JSON in fase di sviluppo, è possibile usare comandi come <code>cat data/users.json | jq '.[] | {username, fullName}'</code> su Linux/macOS o PowerShell con <code>ConvertFrom-Json</code>.</p>
+    </div>
+  </div>
+</body>
+</html>
